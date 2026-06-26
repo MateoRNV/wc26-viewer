@@ -1,0 +1,103 @@
+{
+  "header": {
+    "title": "Simulador de Bracket · Mundial 2026",
+    "subtitle": "Dieciseisavos de final · 8 mejores terceros",
+    "hintSimulator": "edita goles y mira el bracket recalcularse",
+    "hintSandbox": "arrastra equipos para forzar el orden",
+    "matrixLoading": "cargando matriz…",
+    "matrixError": "⚠️ error al cargar la matriz"
+  },
+  "modes": {
+    "simulator": "Simulador",
+    "sandbox": "Sandbox"
+  },
+  "language": {
+    "label": "Idioma",
+    "es": "Español",
+    "en": "English"
+  },
+  "panels": {
+    "groups": "Grupos",
+    "thirds": "Tabla de Terceros",
+    "bracket": "Dieciseisavos (Round of 32)"
+  },
+  "group": {
+    "title": "Grupo {{letter}}",
+    "dragHint": "arrastra ↕"
+  },
+  "thirds": {
+    "rank": "#",
+    "team": "Equipo",
+    "group": "Gr",
+    "points": "Pts",
+    "gd": "DG",
+    "gf": "GF",
+    "qualifyLegend": "Top 8 clasifican",
+    "eliminatedLegend": "Eliminados",
+    "tiebreakers": "Orden por: Puntos → Diferencia de goles → Goles a favor → Fair-play → Ranking FIFA."
+  },
+  "bracket": {
+    "combination": "Combinación: {{key}}",
+    "official": "✓ Escenario oficial FIFA",
+    "generated": "~ Asignación generada (sin revancha)",
+    "loadingMatrix": "Cargando matriz de 495 combinaciones…",
+    "defineThirds": "Define los 8 terceros clasificados (la tabla del centro) para resolver el bracket.",
+    "noScenario": "Sin escenario para {{key}}",
+    "pending": "por definir",
+    "matchPrefix": "M",
+    "slotThird": "3º {{group}}"
+  },
+  "match": {
+    "goalsAria": "Goles {{team}}"
+  },
+  "teams": {
+    "MEX": "México",
+    "CRC": "Costa Rica",
+    "KSA": "Arabia Saudita",
+    "RSA": "Sudáfrica",
+    "CAN": "Canadá",
+    "BIH": "Bosnia",
+    "QAT": "Catar",
+    "CIV": "Costa de Marfil",
+    "USA": "Estados Unidos",
+    "POL": "Polonia",
+    "JAM": "Jamaica",
+    "UZB": "Uzbekistán",
+    "ARG": "Argentina",
+    "JPN": "Japón",
+    "NGA": "Nigeria",
+    "PAN": "Panamá",
+    "GER": "Alemania",
+    "ECU": "Ecuador",
+    "KOR": "Corea del Sur",
+    "CPV": "Cabo Verde",
+    "BRA": "Brasil",
+    "CRO": "Croacia",
+    "EGY": "Egipto",
+    "NZL": "Nueva Zelanda",
+    "ESP": "España",
+    "URU": "Uruguay",
+    "IRN": "Irán",
+    "HAI": "Haití",
+    "POR": "Portugal",
+    "COL": "Colombia",
+    "AUS": "Australia",
+    "JOR": "Jordania",
+    "FRA": "Francia",
+    "NOR": "Noruega",
+    "SEN": "Senegal",
+    "CUW": "Curazao",
+    "ENG": "Inglaterra",
+    "NED": "Países Bajos",
+    "GHA": "Ghana",
+    "PAR": "Paraguay",
+    "BEL": "Bélgica",
+    "MAR": "Marruecos",
+    "CHL": "Chile",
+    "TUN": "Túnez",
+    "ITA": "Italia",
+    "AUT": "Austria",
+    "SCO": "Escocia",
+    "PAN2": "Panamá B"
+  }
+}

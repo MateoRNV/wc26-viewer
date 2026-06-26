@@ -1,0 +1,103 @@
+{
+  "header": {
+    "title": "Bracket Simulator · 2026 World Cup",
+    "subtitle": "Round of 32 · 8 best third-placed teams",
+    "hintSimulator": "edit goals and watch the bracket recompute",
+    "hintSandbox": "drag teams to force the standings",
+    "matrixLoading": "loading matrix…",
+    "matrixError": "⚠️ failed to load the matrix"
+  },
+  "modes": {
+    "simulator": "Simulator",
+    "sandbox": "Sandbox"
+  },
+  "language": {
+    "label": "Language",
+    "es": "Español",
+    "en": "English"
+  },
+  "panels": {
+    "groups": "Groups",
+    "thirds": "Third-Place Table",
+    "bracket": "Round of 32"
+  },
+  "group": {
+    "title": "Group {{letter}}",
+    "dragHint": "drag ↕"
+  },
+  "thirds": {
+    "rank": "#",
+    "team": "Team",
+    "group": "Gr",
+    "points": "Pts",
+    "gd": "GD",
+    "gf": "GF",
+    "qualifyLegend": "Top 8 advance",
+    "eliminatedLegend": "Eliminated",
+    "tiebreakers": "Ranked by: Points → Goal difference → Goals for → Fair-play → FIFA ranking."
+  },
+  "bracket": {
+    "combination": "Combination: {{key}}",
+    "official": "✓ Official FIFA scenario",
+    "generated": "~ Generated assignment (no rematch)",
+    "loadingMatrix": "Loading the 495-combination matrix…",
+    "defineThirds": "Define the 8 qualifying third-placed teams (center table) to resolve the bracket.",
+    "noScenario": "No scenario for {{key}}",
+    "pending": "to be defined",
+    "matchPrefix": "M",
+    "slotThird": "3rd {{group}}"
+  },
+  "match": {
+    "goalsAria": "{{team}} goals"
+  },
+  "teams": {
+    "MEX": "Mexico",
+    "CRC": "Costa Rica",
+    "KSA": "Saudi Arabia",
+    "RSA": "South Africa",
+    "CAN": "Canada",
+    "BIH": "Bosnia & H.",
+    "QAT": "Qatar",
+    "CIV": "Ivory Coast",
+    "USA": "United States",
+    "POL": "Poland",
+    "JAM": "Jamaica",
+    "UZB": "Uzbekistan",
+    "ARG": "Argentina",
+    "JPN": "Japan",
+    "NGA": "Nigeria",
+    "PAN": "Panama",
+    "GER": "Germany",
+    "ECU": "Ecuador",
+    "KOR": "South Korea",
+    "CPV": "Cape Verde",
+    "BRA": "Brazil",
+    "CRO": "Croatia",
+    "EGY": "Egypt",
+    "NZL": "New Zealand",
+    "ESP": "Spain",
+    "URU": "Uruguay",
+    "IRN": "Iran",
+    "HAI": "Haiti",
+    "POR": "Portugal",
+    "COL": "Colombia",
+    "AUS": "Australia",
+    "JOR": "Jordan",
+    "FRA": "France",
+    "NOR": "Norway",
+    "SEN": "Senegal",
+    "CUW": "Curaçao",
+    "ENG": "England",
+    "NED": "Netherlands",
+    "GHA": "Ghana",
+    "PAR": "Paraguay",
+    "BEL": "Belgium",
+    "MAR": "Morocco",
+    "CHL": "Chile",
+    "TUN": "Tunisia",
+    "ITA": "Italy",
+    "AUT": "Austria",
+    "SCO": "Scotland",
+    "PAN2": "Panama B"
+  }
+}

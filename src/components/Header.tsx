@@ -25,6 +25,7 @@ export function Header() {
           </div>
           <button
             type="button"
+            data-testid="open-combinations"
             onClick={() => setShowCombinations(true)}
             className="ml-1 inline-flex shrink-0 items-center gap-1.5 rounded border border-white/20 bg-white/10 px-2.5 py-1.5 text-xs font-semibold text-white/90 transition hover:bg-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/50"
             title={t('combinations.open', 'Combinaciones de terceros')}

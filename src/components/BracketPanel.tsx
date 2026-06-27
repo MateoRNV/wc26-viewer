@@ -2,7 +2,8 @@ import { useMemo, useState } from 'react';
 import { CheckCircle2, Trophy, LayoutGrid, Network } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/appStore';
-import { GROUP_LETTERS } from '../data/groups';
+import { createInitialGroups, GROUP_LETTERS } from '../data/groups';
+import { analyzePossibleCombinations } from '../utils/possibleCombinations';
 import { teamName } from '../i18n';
 import { KnockoutMatchCard } from './KnockoutMatchCard';
 import { KnockoutEditDialog } from './KnockoutEditDialog';
@@ -51,6 +52,36 @@ export function BracketPanel() {
   const scenarioOption = useAppStore((state) => state.scenarioOption);
   const bracketError = useAppStore((state) => state.bracketError);
   const matrixStatus = useAppStore((state) => state.matrixStatus);
+  const matrix = useAppStore((state) => state.matrix);
+
+  const provisionalRound32 = useMemo(() => {
+    const provisional = new Set<number>();
+    if (!matrix) return provisional;
+
+    const officialGroups = createInitialGroups();
+    const analysis = analyzePossibleCombinations(officialGroups);
+    const incomplete = new Set(analysis.incompleteGroups);
+    const signatures = new Map<number, Set<string>>();
+
+    for (const scenario of matrix.scenarios) {
+      if (!analysis.possibleKeys.has(scenario.groupCombination)) continue;
+      for (const matchup of scenario.matchups) {
+        const signature = `${matchup.team1.type}:${matchup.team1.group}|${matchup.team2.type}:${matchup.team2.group}`;
+        const values = signatures.get(matchup.matchNumber) ?? new Set<string>();
+        values.add(signature);
+        signatures.set(matchup.matchNumber, values);
+
+        if (incomplete.has(matchup.team1.group) || incomplete.has(matchup.team2.group)) {
+          provisional.add(matchup.matchNumber);
+        }
+      }
+    }
+
+    for (const [matchNumber, values] of signatures) {
+      if (values.size > 1) provisional.add(matchNumber);
+    }
+    return provisional;
+  }, [matrix]);
 
   const names = useMemo(() => {
     const map = new Map<string, string>();
@@ -85,7 +116,7 @@ export function BracketPanel() {
           {ids.map((id) => {
             const match = findMatch(id);
             return match ? (
-              <KnockoutMatchCard key={id} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
+              <KnockoutMatchCard key={id} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} provisional={provisionalRound32.has(id)} />
             ) : null;
           })}
         </div>
@@ -112,7 +143,7 @@ export function BracketPanel() {
             <div key={id} className="flex flex-1 items-center justify-center">
               {match ? (
                 <div className="w-full">
-                  <KnockoutMatchCard match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
+                  <KnockoutMatchCard match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} provisional={provisionalRound32.has(id)} />
                 </div>
               ) : null}
             </div>
@@ -167,7 +198,7 @@ export function BracketPanel() {
         <div className="relative flex flex-col items-center justify-center" style={{ height: halfH }}>
           <div className="rounded-lg ring-2 ring-amber-300" style={{ width: cardW }}>
             {finalMatch ? (
-              <KnockoutMatchCard match={finalMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} />
+              <KnockoutMatchCard match={finalMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} provisional={provisionalRound32.has(104)} />
             ) : null}
           </div>
           <div className="absolute bottom-0" style={{ width: cardW }}>
@@ -175,7 +206,7 @@ export function BracketPanel() {
               {t('bracket.rounds.thirdPlace')}
             </p>
             {thirdMatch ? (
-              <KnockoutMatchCard match={thirdMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} />
+              <KnockoutMatchCard match={thirdMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} provisional={provisionalRound32.has(103)} />
             ) : null}
           </div>
         </div>
@@ -289,7 +320,7 @@ export function BracketPanel() {
 
           <div className={minimized ? 'grid grid-cols-2 gap-2 xl:grid-cols-3' : 'grid grid-cols-1 gap-3 xl:grid-cols-2'}>
             {listMatches.map((match) => (
-              <KnockoutMatchCard key={match.matchNumber} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
+              <KnockoutMatchCard key={match.matchNumber} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} provisional={provisionalRound32.has(match.matchNumber)} />
             ))}
           </div>
         </div>

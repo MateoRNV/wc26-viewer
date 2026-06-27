@@ -9,16 +9,16 @@ describe('portable and persisted state', () => {
   });
 
   it('exports, resets and restores an explicit completed result', () => {
-    useAppStore.getState().updateMatchResult('H-M5', 2, 1);
+    useAppStore.getState().updateMatchResult('J-M5', 2, 1);
     const exported = useAppStore.getState().exportState();
-    expect(useAppStore.getState().groups.H.matches[4].status).toBe('completed');
-    expect(localStorage.getItem('wc2026-simulator-v1')).toContain('H-M5');
+    expect(useAppStore.getState().groups.J.matches[4].status).toBe('completed');
+    expect(localStorage.getItem('wc2026-simulator-v2')).toContain('J-M5');
 
     useAppStore.getState().resetAll();
-    expect(useAppStore.getState().groups.H.matches[4].homeGoals).toBeNull();
+    expect(useAppStore.getState().groups.J.matches[4].homeGoals).toBeNull();
     useAppStore.getState().importState(exported);
-    expect(useAppStore.getState().groups.H.matches[4].homeGoals).toBe(2);
-    expect(useAppStore.getState().groups.H.matches[4].awayGoals).toBe(1);
+    expect(useAppStore.getState().groups.J.matches[4].homeGoals).toBe(2);
+    expect(useAppStore.getState().groups.J.matches[4].awayGoals).toBe(1);
   });
 
   it('manually reorders third-place rankings in drag and drop mode', () => {

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ListOrdered, Trophy, UsersRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GroupsPanel } from './GroupsPanel';
@@ -11,15 +11,20 @@ type View = 'groups' | 'thirds' | 'bracket';
 export function Layout() {
   const { t } = useTranslation();
   const [activeView, setActiveView] = useState<View>('groups');
-  const [groupsView, setGroupsView] = useState<'groups' | 'matches'>('matches');
+  const [groupsViewOverride, setGroupsViewOverride] = useState<{
+    mode: boolean;
+    view: 'groups' | 'matches';
+  } | null>(null);
   const collapsedGroups = useAppStore((state) => state.collapsedGroups);
   const collapseAll = useAppStore((state) => state.collapseAllGroups);
   const isDnd = useAppStore((state) => state.isDragAndDropMode);
 
   // Sync the groups sub-view with the mode: Official → standings, Predict → remaining matches.
-  useEffect(() => {
-    setGroupsView(isDnd ? 'matches' : 'groups');
-  }, [isDnd]);
+  const groupsView = groupsViewOverride?.mode === isDnd
+    ? groupsViewOverride.view
+    : isDnd
+      ? 'matches'
+      : 'groups';
 
   const anyExpanded = Object.values(collapsedGroups).some((collapsed) => !collapsed);
 
@@ -74,7 +79,12 @@ export function Layout() {
                 )}
                 <button
                   type="button"
-                  onClick={() => setGroupsView((prev) => (prev === 'groups' ? 'matches' : 'groups'))}
+                  onClick={() =>
+                    setGroupsViewOverride({
+                      mode: isDnd,
+                      view: groupsView === 'groups' ? 'matches' : 'groups',
+                    })
+                  }
                   className="rounded bg-slate-50 border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition"
                 >
                   {groupsView === 'groups'

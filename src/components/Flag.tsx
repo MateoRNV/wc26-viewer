@@ -45,7 +45,7 @@ const FIFA_TO_ISO2: Record<string, string> = {
  * Returns the URL of the flag image for a given FIFA team code.
  * Uses flagcdn.com with the ISO 3166-1 alpha-2 code.
  */
-export function flagUrl(code: string, size: 'w20' | 'w40' | 'w80' = 'w20'): string {
+function flagUrl(code: string, size: 'w20' | 'w40' | 'w80' = 'w20'): string {
   const iso2 = FIFA_TO_ISO2[code];
   if (!iso2) return '';
   return `https://flagcdn.com/${size}/${iso2}.png`;

@@ -69,14 +69,20 @@ export function GroupsPanel({ viewMode }: GroupsPanelProps) {
               const group = groups[letter];
               const stats = computeStats(group.teams, group.matches);
               const statByCode = new Map(stats.map((s) => [s.team.code, s]));
+              const hasPending = group.matches.some((m) => !m.preseeded && m.status !== 'completed');
               return (
                 <div
                   key={letter}
                   className="rounded border border-slate-200 bg-white px-2 py-1.5"
                 >
-                  <p className="text-[9px] font-bold text-slate-400 uppercase mb-1">
-                    {t('group.title', { letter })}
-                  </p>
+                  <div className="flex items-center justify-between mb-1">
+                    <p className="text-[9px] font-bold text-slate-400 uppercase">
+                      {t('group.title', { letter })}
+                    </p>
+                    {hasPending && (
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-400 shrink-0" aria-label="partidos pendientes" />
+                    )}
+                  </div>
                   <div className="space-y-0.5">
                     {group.teams.map((team, idx) => {
                       const s = statByCode.get(team.code);

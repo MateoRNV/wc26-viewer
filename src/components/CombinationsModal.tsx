@@ -1,10 +1,10 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { X, CheckCircle2, FlaskConical, RotateCcw, ArrowUp, ArrowDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/appStore';
 import { createInitialGroups, GROUP_LETTERS } from '../data/groups';
 import { rankThirdPlaces } from '../utils/scoringRules';
-import { teamName } from '../i18n';
+import { analyzePossibleCombinations } from '../utils/possibleCombinations';
 import type { Group, GroupLetter, MatrixScenario } from '../types';
 
 interface CombinationRow {
@@ -32,51 +32,25 @@ function buildRow(scenario: MatrixScenario): CombinationRow {
   return { option: scenario.option, groups, assignments };
 }
 
-/** Possible final-points range of a group's eventual third-placed team. */
-function thirdPlacePointRange(group: Group): { min: number; max: number } {
-  const codes = group.teams.map((t) => t.code);
-  const base: Record<string, number> = {};
-  for (const c of codes) base[c] = 0;
-  const remaining: typeof group.matches = [];
-  for (const m of group.matches) {
-    if (m.status === 'completed' && m.homeGoals !== null && m.awayGoals !== null) {
-      if (m.homeGoals > m.awayGoals) base[m.homeCode] += 3;
-      else if (m.homeGoals < m.awayGoals) base[m.awayCode] += 3;
-      else {
-        base[m.homeCode] += 1;
-        base[m.awayCode] += 1;
-      }
-    } else {
-      remaining.push(m);
-    }
+function keyForGroups(groups: Set<GroupLetter>): string {
+  return [...groups].sort().join('');
+}
+
+function SortIcon({
+  columnKey,
+  sort,
+}: {
+  columnKey: string;
+  sort: { key: string; dir: 'asc' | 'desc' } | null;
+}) {
+  if (!sort || sort.key !== columnKey) {
+    return <ArrowUp size={9} className="ml-0.5 inline opacity-25" aria-hidden="true" />;
   }
-  const k = remaining.length;
-  let min = Infinity;
-  let max = -Infinity;
-  const total = 3 ** k;
-  for (let mask = 0; mask < total; mask += 1) {
-    const pts: Record<string, number> = { ...base };
-    let x = mask;
-    for (let i = 0; i < k; i += 1) {
-      const outcome = x % 3;
-      x = Math.floor(x / 3);
-      const m = remaining[i];
-      if (outcome === 0) pts[m.homeCode] += 3;
-      else if (outcome === 1) pts[m.awayCode] += 3;
-      else {
-        pts[m.homeCode] += 1;
-        pts[m.awayCode] += 1;
-      }
-    }
-    const third = codes.map((c) => pts[c]).sort((a, b) => b - a)[2];
-    if (third < min) min = third;
-    if (third > max) max = third;
-  }
-  if (!Number.isFinite(min)) {
-    min = 0;
-    max = 0;
-  }
-  return { min, max };
+  return sort.dir === 'asc' ? (
+    <ArrowUp size={11} className="ml-0.5 inline text-emerald-700" aria-hidden="true" />
+  ) : (
+    <ArrowDown size={11} className="ml-0.5 inline text-emerald-700" aria-hidden="true" />
+  );
 }
 
 function qualifyingGroups(groups: Record<GroupLetter, Group>): Set<GroupLetter> {
@@ -88,7 +62,7 @@ function qualifyingGroups(groups: Record<GroupLetter, Group>): Set<GroupLetter> 
 }
 
 export function CombinationsModal({ onClose }: { onClose: () => void }) {
-  const { t, i18n } = useTranslation();
+  const { t } = useTranslation();
   const matrix = useAppStore((state) => state.matrix);
   const storeGroups = useAppStore((state) => state.groups);
   const isDnd = useAppStore((state) => state.isDragAndDropMode);
@@ -122,44 +96,31 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
   );
   const winnerColumns = matrix?.source.winnerColumns ?? [];
 
-  // Per-group third-place point ranges from the official (real) results.
-  const ranges = useMemo(() => {
-    const map = {} as Record<GroupLetter, { min: number; max: number }>;
-    for (const l of GROUP_LETTERS) map[l] = thirdPlacePointRange(officialGroups[l]);
-    return map;
-  }, [officialGroups]);
-
-  const officialSet = useMemo(() => qualifyingGroups(officialGroups), [officialGroups]);
+  const officialAnalysis = useMemo(
+    () => analyzePossibleCombinations(officialGroups),
+    [officialGroups]
+  );
   const simulationSet = useMemo(() => {
     const sim = isDnd ? storeGroups : savedSimulation?.groups ?? storeGroups;
     return qualifyingGroups(sim);
   }, [isDnd, storeGroups, savedSimulation]);
 
-  // A combination is possible if every advancing group can still out-point every
-  // non-advancing one (each group's third-place points chosen independently).
-  const isPossible = useMemo(() => {
-    const officialKey = [...officialSet].sort().join('');
-    return (groups: Set<GroupLetter>) => {
-      let advMinOfMax = Infinity;
-      let nonAdvMaxOfMin = -Infinity;
-      for (const l of GROUP_LETTERS) {
-        if (groups.has(l)) advMinOfMax = Math.min(advMinOfMax, ranges[l].max);
-        else nonAdvMaxOfMin = Math.max(nonAdvMaxOfMin, ranges[l].min);
-      }
-      if (advMinOfMax >= nonAdvMaxOfMin) return true;
-      // The currently-projected official combination is always possible.
-      return [...groups].sort().join('') === officialKey;
-    };
-  }, [ranges, officialSet]);
+  const isPossible = useCallback(
+    (groups: Set<GroupLetter>) =>
+      officialAnalysis.possibleKeys.has(keyForGroups(groups)),
+    [officialAnalysis]
+  );
 
   const thirdTeamByGroup = useMemo(() => {
     const map = {} as Record<GroupLetter, string>;
     for (const l of GROUP_LETTERS) {
       const third = officialGroups[l].teams[2];
-      map[l] = third ? teamName(third.code, third.name) : l;
+      map[l] = third
+        ? t(`teams.${third.code}`, { defaultValue: third.name })
+        : l;
     }
     return map;
-  }, [officialGroups, i18n.language]);
+  }, [officialGroups, t]);
 
   const possibleCount = useMemo(
     () => rows.reduce((acc, r) => acc + (isPossible(r.groups) ? 1 : 0), 0),
@@ -194,17 +155,6 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
     });
   }, [rows, selected, onlyPossible, isPossible, sort]);
 
-  const SortIcon = ({ columnKey }: { columnKey: string }) => {
-    if (!sort || sort.key !== columnKey) {
-      return <ArrowUp size={9} className="ml-0.5 inline opacity-25" aria-hidden="true" />;
-    }
-    return sort.dir === 'asc' ? (
-      <ArrowUp size={11} className="ml-0.5 inline text-emerald-700" aria-hidden="true" />
-    ) : (
-      <ArrowDown size={11} className="ml-0.5 inline text-emerald-700" aria-hidden="true" />
-    );
-  };
-
   const selectedKey = [...selected].sort().join('');
   const exactRow =
     selected.size === 8 ? rows.find((r) => [...r.groups].sort().join('') === selectedKey) : undefined;
@@ -223,6 +173,12 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
       else next.add(l);
       return next;
     });
+
+  const syncOfficial = () => {
+    setSelected(new Set(officialAnalysis.lockedGroups));
+    setOnlyPossible(true);
+    setSort(null);
+  };
 
   return (
     <div
@@ -275,6 +231,7 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
                 <button
                   key={l}
                   type="button"
+                  data-testid={`combination-group-${l}`}
                   onClick={() => toggleGroup(l)}
                   title={thirdTeamByGroup[l]}
                   className={`h-7 w-7 rounded text-xs font-bold transition ${
@@ -311,6 +268,7 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
             <label className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600">
               <input
                 type="checkbox"
+                data-testid="combinations-only-possible"
                 checked={onlyPossible}
                 onChange={(e) => setOnlyPossible(e.target.checked)}
                 className="h-3.5 w-3.5 accent-emerald-600"
@@ -319,7 +277,8 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
             </label>
             <button
               type="button"
-              onClick={() => setSelected(new Set(officialSet))}
+              data-testid="combinations-sync-official"
+              onClick={syncOfficial}
               className="inline-flex items-center gap-1.5 rounded border border-emerald-300 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-800 transition hover:bg-emerald-100"
             >
               <CheckCircle2 size={14} /> {t('combinations.syncOfficial', 'Sincronizar oficial')}
@@ -344,19 +303,19 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
             <table className="w-full border-collapse text-xs">
               <thead className="sticky top-0 z-10 bg-slate-100 text-slate-700 shadow-sm">
                 <tr>
-                  <SortableTh columnKey="option" onClick={toggleSort} sortIcon={<SortIcon columnKey="option" />}>
+                  <SortableTh columnKey="option" onClick={toggleSort} sortIcon={<SortIcon columnKey="option" sort={sort} />}>
                     No.
                   </SortableTh>
                   {GROUP_LETTERS.map((l) => (
-                    <SortableTh key={l} columnKey={l} onClick={toggleSort} sortIcon={<SortIcon columnKey={l} />} compact>
+                    <SortableTh key={l} columnKey={l} onClick={toggleSort} sortIcon={<SortIcon columnKey={l} sort={sort} />} title={thirdTeamByGroup[l]} compact>
                       {l}
                     </SortableTh>
                   ))}
-                  <SortableTh columnKey="possible" onClick={toggleSort} sortIcon={<SortIcon columnKey="possible" />}>
+                  <SortableTh columnKey="possible" onClick={toggleSort} sortIcon={<SortIcon columnKey="possible" sort={sort} />}>
                     {t('combinations.possibleQ', '¿Posible?')}
                   </SortableTh>
                   {winnerColumns.map((c) => (
-                    <SortableTh key={c} columnKey={c} onClick={toggleSort} sortIcon={<SortIcon columnKey={c} />} compact>
+                    <SortableTh key={c} columnKey={c} onClick={toggleSort} sortIcon={<SortIcon columnKey={c} sort={sort} />} compact>
                       {c}
                     </SortableTh>
                   ))}
@@ -366,12 +325,19 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
                 {visibleRows.map((row) => {
                   const possible = isPossible(row.groups);
                   const isExact = exactRow?.option === row.option;
+                  const isCurrentOfficial = keyForGroups(row.groups) === officialAnalysis.currentKey;
                   return (
                     <tr
                       key={row.option}
+                      data-testid="combination-row"
+                      data-current-official={isCurrentOfficial ? 'true' : undefined}
                       ref={isExact ? highlightRef : undefined}
                       className={`text-center ${
-                        isExact ? 'outline outline-2 -outline-offset-2 outline-amber-400' : ''
+                        isExact
+                          ? 'outline outline-2 -outline-offset-2 outline-amber-400'
+                          : isCurrentOfficial
+                            ? 'outline outline-2 -outline-offset-2 outline-sky-400'
+                            : ''
                       } ${possible ? '' : 'opacity-60'}`}
                     >
                       <td className="border border-slate-200 px-2 py-1 font-mono font-bold text-slate-700">
@@ -382,6 +348,7 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
                         return (
                           <td
                             key={l}
+                            title={thirdTeamByGroup[l]}
                             className={`border border-slate-200 px-1.5 py-1 font-semibold ${
                               adv ? 'bg-emerald-100 text-emerald-900' : 'text-slate-300'
                             }`}
@@ -395,11 +362,16 @@ export function CombinationsModal({ onClose }: { onClose: () => void }) {
                           possible ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-600'
                         }`}
                       >
-                        {possible ? t('combinations.yes', 'Sí') : t('combinations.no', 'No')}
+                        {isCurrentOfficial
+                          ? t('combinations.current', 'Actual')
+                          : possible
+                            ? t('combinations.yes', 'Sí')
+                            : t('combinations.no', 'No')}
                       </td>
                       {winnerColumns.map((c) => (
                         <td
                           key={c}
+                          title={row.assignments[c] ? thirdTeamByGroup[row.assignments[c].slice(1) as GroupLetter] : undefined}
                           className="border border-slate-200 px-1.5 py-1 font-mono text-slate-700"
                         >
                           {row.assignments[c] ?? ''}
@@ -432,18 +404,21 @@ function SortableTh({
   onClick,
   sortIcon,
   compact,
+  title,
   children,
 }: {
   columnKey: string;
   onClick: (key: string) => void;
   sortIcon: React.ReactNode;
   compact?: boolean;
+  title?: string;
   children: React.ReactNode;
 }) {
   return (
     <th className={`border border-slate-200 ${compact ? 'px-1.5' : 'px-2'} py-1.5 font-bold`}>
       <button
         type="button"
+        title={title}
         onClick={() => onClick(columnKey)}
         className="inline-flex w-full items-center justify-center gap-0.5 rounded px-1 py-0.5 transition hover:bg-slate-200/70 focus:outline-none focus:ring-2 focus:ring-emerald-400"
       >

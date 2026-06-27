@@ -8,11 +8,13 @@ export function KnockoutMatchCard({
   nameByCode,
   minimized = false,
   onEdit,
+  provisional = false,
 }: {
   match: KnockoutMatchView;
   nameByCode: (code: string | null) => string;
   minimized?: boolean;
   onEdit?: (matchNumber: number) => void;
+  provisional?: boolean;
 }) {
   const { t } = useTranslation();
   const update = useAppStore((state) => state.updateKnockoutResult);
@@ -25,7 +27,16 @@ export function KnockoutMatchCard({
     const rows = (
       <>
         <div className="flex items-center justify-between mb-1">
-          <span className="font-mono text-[10px] text-slate-400">M{match.matchNumber}</span>
+          <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400">
+            M{match.matchNumber}
+            {provisional && (
+              <span
+                className="h-1.5 w-1.5 rounded-full bg-amber-400"
+                title={t('bracket.provisionalMatch', 'El emparejamiento todavía puede cambiar')}
+                aria-label={t('bracket.provisionalMatch', 'El emparejamiento todavía puede cambiar')}
+              />
+            )}
+          </span>
           {match.winnerCode && (
             <span className="text-[10px] font-bold text-emerald-700">✓</span>
           )}
@@ -100,7 +111,16 @@ export function KnockoutMatchCard({
   return (
     <article className="rounded-lg border border-slate-200 bg-white p-3">
       <div className="mb-2 flex items-center justify-between">
-        <span className="text-xs font-bold text-slate-500">M{match.matchNumber}</span>
+        <span className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-500">
+          M{match.matchNumber}
+          {provisional && (
+            <span
+              className="h-2 w-2 rounded-full bg-amber-400"
+              title={t('bracket.provisionalMatch', 'El emparejamiento todavía puede cambiar')}
+              aria-label={t('bracket.provisionalMatch', 'El emparejamiento todavía puede cambiar')}
+            />
+          )}
+        </span>
         {match.winnerCode && (
           <span className="text-xs font-semibold text-emerald-700">
             {t('bracket.winner')}: {nameByCode(match.winnerCode)}

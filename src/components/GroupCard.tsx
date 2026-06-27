@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChevronDown, ChevronUp, GripVertical } from 'lucide-react';
+import { ChevronDown, ChevronUp, GripVertical, Clock } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { Group, Team } from '../types';
 import { useAppStore } from '../store/appStore';
@@ -40,6 +40,7 @@ export function GroupCard({ group }: { group: Group }) {
   const stats = computeStats(group.teams, group.matches);
   const statByCode = new Map(stats.map((entry) => [entry.team.code, entry]));
   const completed = group.matches.filter((match) => match.status === 'completed').length;
+  const remaining = group.matches.filter((m) => !m.preseeded && m.status !== 'completed').length;
   const nameByCode = (code: string) => {
     const team = group.teams.find((entry) => entry.code === code);
     return team ? teamName(team.code, team.name) : code;
@@ -76,11 +77,16 @@ export function GroupCard({ group }: { group: Group }) {
             {t('group.title', { letter: group.letter })}
           </h3>
         </div>
-        <span
-          className={`text-xs font-medium ${isGroupComplete(group) ? 'text-emerald-700' : 'text-slate-500'}`}
-        >
-          {isDnd ? t('group.manual') : `${completed}/6`}
-        </span>
+        {remaining > 0 ? (
+          <span className="flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
+            <Clock size={11} aria-hidden="true" />
+            {remaining}
+          </span>
+        ) : (
+          <span className={`text-[10px] font-semibold ${isGroupComplete(group) ? 'text-emerald-600' : 'text-slate-400'}`}>
+            {isDnd ? null : `${completed}/6`}
+          </span>
+        )}
       </div>
 
       <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>

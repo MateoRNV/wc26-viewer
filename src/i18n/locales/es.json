@@ -87,7 +87,25 @@
     },
     "decisionShort": { "regular": "90'", "extra-time": "PR", "penalties": "PEN" },
     "viewList": "Vista lista",
-    "viewTree": "Vista árbol"
+    "viewTree": "Vista árbol",
+    "provisionalMatch": "El emparejamiento todavía puede cambiar"
+  },
+  "combinations": {
+    "title": "Combinaciones de los 8 mejores terceros",
+    "subtitle": "FIFA World Cup 26 · Anexo C",
+    "open": "Combinaciones de terceros",
+    "button": "Combinaciones",
+    "possibleCount": "{{count}} de 495 posibles",
+    "advancing": "Clasifican de",
+    "clear": "Limpiar",
+    "onlyPossible": "Solo posibles",
+    "syncOfficial": "Sincronizar oficial",
+    "syncSim": "Sincronizar simulación",
+    "possibleQ": "¿Posible?",
+    "yes": "Sí",
+    "no": "No",
+    "current": "Actual",
+    "noMatches": "Ninguna combinación coincide con la selección"
   },
   "match": {
     "goalsAria": "Goles de {{team}}",

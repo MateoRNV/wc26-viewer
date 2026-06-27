@@ -88,7 +88,25 @@
     },
     "decisionShort": { "regular": "90'", "extra-time": "ET", "penalties": "PEN" },
     "viewList": "List view",
-    "viewTree": "Tree view"
+    "viewTree": "Tree view",
+    "provisionalMatch": "This matchup can still change"
+  },
+  "combinations": {
+    "title": "Eight best third-place combinations",
+    "subtitle": "FIFA World Cup 26 · Annex C",
+    "open": "Third-place combinations",
+    "button": "Combinations",
+    "possibleCount": "{{count}} of 495 possible",
+    "advancing": "Qualifying groups",
+    "clear": "Clear",
+    "onlyPossible": "Possible only",
+    "syncOfficial": "Sync official",
+    "syncSim": "Sync simulation",
+    "possibleQ": "Possible?",
+    "yes": "Yes",
+    "no": "No",
+    "current": "Current",
+    "noMatches": "No combination matches the selection"
   },
   "match": {
     "goalsAria": "{{team}} goals",

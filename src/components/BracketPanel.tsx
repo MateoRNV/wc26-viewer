@@ -4,10 +4,11 @@ import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/appStore';
 import { createInitialGroups, GROUP_LETTERS } from '../data/groups';
 import { analyzePossibleCombinations } from '../utils/possibleCombinations';
+import { calculateGroupStandings } from '../utils/scoringRules';
 import { teamName } from '../i18n';
 import { KnockoutMatchCard } from './KnockoutMatchCard';
 import { KnockoutEditDialog } from './KnockoutEditDialog';
-import type { KnockoutRound } from '../types';
+import type { BracketSlot, KnockoutRound } from '../types';
 
 // Waterfall (left→right) columns
 const COL_1_MATCH_IDS = [73, 75, 74, 77, 81, 82, 83, 84, 76, 78, 79, 80, 85, 87, 86, 88];
@@ -60,9 +61,63 @@ export function BracketPanel() {
 
     const officialGroups = createInitialGroups();
     const analysis = analyzePossibleCombinations(officialGroups);
-    const incomplete = new Set(analysis.incompleteGroups);
-    const signatures = new Map<number, Set<string>>();
+    const incompleteSet = new Set(analysis.incompleteGroups);
 
+    // For each group, determine whether the winner and runner-up are the same
+    // team across ALL possible outcomes of remaining matches (score 0-6).
+    // Groups with no pending matches are trivially fixed.
+    const fixedByGroup = new Map<string, { winner: boolean; runnerUp: boolean }>();
+    for (const letter of GROUP_LETTERS) {
+      const group = officialGroups[letter];
+      const pendingIdxs = group.matches
+        .map((m, i) => (m.status === 'completed' ? -1 : i))
+        .filter((i) => i >= 0);
+
+      if (pendingIdxs.length === 0) {
+        fixedByGroup.set(letter, { winner: true, runnerUp: true });
+        continue;
+      }
+
+      let firstWinner: string | null = null;
+      let firstRunnerUp: string | null = null;
+      let winnerFixed = true;
+      let runnerUpFixed = true;
+      const ms = group.matches.map((m) => ({ ...m }));
+
+      const scan = (pi: number) => {
+        if (!winnerFixed && !runnerUpFixed) return;
+        if (pi === pendingIdxs.length) {
+          const ordered = calculateGroupStandings({ ...group, matches: ms });
+          const w = ordered[0]?.code ?? null;
+          const r = ordered[1]?.code ?? null;
+          if (firstWinner === null) firstWinner = w;
+          else if (firstWinner !== w) winnerFixed = false;
+          if (firstRunnerUp === null) firstRunnerUp = r;
+          else if (firstRunnerUp !== r) runnerUpFixed = false;
+          return;
+        }
+        const mi = pendingIdxs[pi];
+        const orig = ms[mi];
+        for (let hg = 0; hg <= 6 && (winnerFixed || runnerUpFixed); hg++) {
+          for (let ag = 0; ag <= 6 && (winnerFixed || runnerUpFixed); ag++) {
+            ms[mi] = { ...orig, homeGoals: hg, awayGoals: ag, status: 'completed' };
+            scan(pi + 1);
+          }
+        }
+        ms[mi] = orig;
+      };
+      scan(0);
+      fixedByGroup.set(letter, { winner: winnerFixed, runnerUp: runnerUpFixed });
+    }
+
+    // A slot is uncertain when the actual team that fills it can still change.
+    const uncertain = (slot: BracketSlot): boolean => {
+      if (slot.type === 'third') return incompleteSet.has(slot.group);
+      const fp = fixedByGroup.get(slot.group);
+      return !fp || (slot.type === 'winner' ? !fp.winner : !fp.runnerUp);
+    };
+
+    const signatures = new Map<number, Set<string>>();
     for (const scenario of matrix.scenarios) {
       if (!analysis.possibleKeys.has(scenario.groupCombination)) continue;
       for (const matchup of scenario.matchups) {
@@ -71,12 +126,13 @@ export function BracketPanel() {
         values.add(signature);
         signatures.set(matchup.matchNumber, values);
 
-        if (incomplete.has(matchup.team1.group) || incomplete.has(matchup.team2.group)) {
+        if (uncertain(matchup.team1) || uncertain(matchup.team2)) {
           provisional.add(matchup.matchNumber);
         }
       }
     }
 
+    // Also mark any match whose slot assignment varies across scenarios.
     for (const [matchNumber, values] of signatures) {
       if (values.size > 1) provisional.add(matchNumber);
     }

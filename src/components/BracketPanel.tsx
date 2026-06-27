@@ -5,6 +5,7 @@ import { useAppStore } from '../store/appStore';
 import { GROUP_LETTERS } from '../data/groups';
 import { teamName } from '../i18n';
 import { KnockoutMatchCard } from './KnockoutMatchCard';
+import { KnockoutEditDialog } from './KnockoutEditDialog';
 import type { KnockoutRound } from '../types';
 
 // Waterfall (left→right) columns
@@ -41,6 +42,7 @@ export function BracketPanel() {
   const [minimized] = useState(true);
   const [treeLayout] = useState<'waterfall' | 'faceoff'>('faceoff');
   const [activeRound, setActiveRound] = useState<KnockoutRound>('round32');
+  const [editing, setEditing] = useState<number | null>(null);
 
   const groups = useAppStore((state) => state.groups);
   const resolved = useAppStore((state) => state.resolvedBracket);
@@ -68,6 +70,7 @@ export function BracketPanel() {
 
   const champion = matches.find((match) => match.matchNumber === 104)?.winnerCode;
   const findMatch = (id: number) => matches.find((m) => m.matchNumber === id);
+  const editingMatch = editing != null ? findMatch(editing) : undefined;
 
   // ---- Waterfall (vertical, left→right) ----
   const renderColumn = (title: string, ids: number[]) => {
@@ -82,7 +85,7 @@ export function BracketPanel() {
           {ids.map((id) => {
             const match = findMatch(id);
             return match ? (
-              <KnockoutMatchCard key={id} match={match} nameByCode={names} minimized={minimized} />
+              <KnockoutMatchCard key={id} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
             ) : null;
           })}
         </div>
@@ -109,7 +112,7 @@ export function BracketPanel() {
             <div key={id} className="flex flex-1 items-center justify-center">
               {match ? (
                 <div className="w-full">
-                  <KnockoutMatchCard match={match} nameByCode={names} minimized={minimized} />
+                  <KnockoutMatchCard match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
                 </div>
               ) : null}
             </div>
@@ -164,7 +167,7 @@ export function BracketPanel() {
         <div className="relative flex flex-col items-center justify-center" style={{ height: halfH }}>
           <div className="rounded-lg ring-2 ring-amber-300" style={{ width: cardW }}>
             {finalMatch ? (
-              <KnockoutMatchCard match={finalMatch} nameByCode={names} minimized={minimized} />
+              <KnockoutMatchCard match={finalMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} />
             ) : null}
           </div>
           <div className="absolute bottom-0" style={{ width: cardW }}>
@@ -172,7 +175,7 @@ export function BracketPanel() {
               {t('bracket.rounds.thirdPlace')}
             </p>
             {thirdMatch ? (
-              <KnockoutMatchCard match={thirdMatch} nameByCode={names} minimized={minimized} />
+              <KnockoutMatchCard match={thirdMatch} nameByCode={names} minimized={minimized} onEdit={setEditing} />
             ) : null}
           </div>
         </div>
@@ -286,10 +289,18 @@ export function BracketPanel() {
 
           <div className={minimized ? 'grid grid-cols-2 gap-2 xl:grid-cols-3' : 'grid grid-cols-1 gap-3 xl:grid-cols-2'}>
             {listMatches.map((match) => (
-              <KnockoutMatchCard key={match.matchNumber} match={match} nameByCode={names} minimized={minimized} />
+              <KnockoutMatchCard key={match.matchNumber} match={match} nameByCode={names} minimized={minimized} onEdit={setEditing} />
             ))}
           </div>
         </div>
+      )}
+
+      {editingMatch && (
+        <KnockoutEditDialog
+          match={editingMatch}
+          nameByCode={names}
+          onClose={() => setEditing(null)}
+        />
       )}
     </div>
   );

@@ -416,13 +416,19 @@ export const useAppStore = create<AppState>()(
           A: false, B: false, C: false, D: false, E: false, F: false,
           G: false, H: false, I: false, J: false, K: false, L: false,
         };
+        // Reset keeps the user in Predict/Simulate mode so they can keep predicting.
+        const thirdPlaceOrder = rankThirdPlaces(
+          GROUP_LETTERS.map((l) => groups[l]),
+          true
+        ).map((r) => r.team.code);
         set({
           groups,
           knockoutResults,
-          isDragAndDropMode: false,
-          thirdPlaceOrder: null,
+          isDragAndDropMode: true,
+          thirdPlaceOrder,
+          savedSimulation: null,
           collapsedGroups,
-          ...derive(groups, current.matrix, false, knockoutResults, null),
+          ...derive(groups, current.matrix, true, knockoutResults, thirdPlaceOrder),
         });
       },
 

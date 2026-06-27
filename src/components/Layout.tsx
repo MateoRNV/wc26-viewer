@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ListOrdered, Trophy, UsersRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { GroupsPanel } from './GroupsPanel';
@@ -14,6 +14,12 @@ export function Layout() {
   const [groupsView, setGroupsView] = useState<'groups' | 'matches'>('matches');
   const collapsedGroups = useAppStore((state) => state.collapsedGroups);
   const collapseAll = useAppStore((state) => state.collapseAllGroups);
+  const isDnd = useAppStore((state) => state.isDragAndDropMode);
+
+  // When switching to Official Results, jump back to the group standings view.
+  useEffect(() => {
+    if (!isDnd) setGroupsView('groups');
+  }, [isDnd]);
 
   const anyExpanded = Object.values(collapsedGroups).some((collapsed) => !collapsed);
 

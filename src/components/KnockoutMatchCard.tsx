@@ -7,10 +7,12 @@ export function KnockoutMatchCard({
   match,
   nameByCode,
   minimized = false,
+  onEdit,
 }: {
   match: KnockoutMatchView;
   nameByCode: (code: string | null) => string;
   minimized?: boolean;
+  onEdit?: (matchNumber: number) => void;
 }) {
   const { t } = useTranslation();
   const update = useAppStore((state) => state.updateKnockoutResult);
@@ -19,8 +21,9 @@ export function KnockoutMatchCard({
   const disabled = !isDnd || !ready;
 
   if (minimized) {
-    return (
-      <article className="rounded border border-slate-200 bg-white px-2.5 py-1.5">
+    const editable = isDnd && ready && Boolean(onEdit);
+    const rows = (
+      <>
         <div className="flex items-center justify-between mb-1">
           <span className="font-mono text-[10px] text-slate-400">M{match.matchNumber}</span>
           {match.winnerCode && (
@@ -41,6 +44,25 @@ export function KnockoutMatchCard({
             <span className="shrink-0 tabular-nums font-bold text-slate-900">{match.awayGoals}</span>
           )}
         </div>
+      </>
+    );
+
+    if (editable) {
+      return (
+        <button
+          type="button"
+          onClick={() => onEdit?.(match.matchNumber)}
+          title={t('bracket.editResult', 'Editar resultado')}
+          className="group block w-full rounded border border-slate-200 bg-white px-2.5 py-1.5 text-left transition hover:border-emerald-400 hover:bg-emerald-50/40 hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-emerald-300"
+        >
+          {rows}
+        </button>
+      );
+    }
+
+    return (
+      <article className="rounded border border-slate-200 bg-white px-2.5 py-1.5">
+        {rows}
       </article>
     );
   }

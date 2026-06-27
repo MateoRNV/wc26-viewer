@@ -7,7 +7,7 @@ export function LanguageSwitcher() {
 
   return (
     <div
-      className="inline-flex items-center gap-1 rounded-full bg-white/15 p-1 text-xs"
+      className="inline-flex items-center rounded border border-white/20 bg-black/10 p-0.5 text-xs"
       role="group"
       aria-label={t('language.label')}
     >
@@ -16,7 +16,7 @@ export function LanguageSwitcher() {
           key={lng}
           type="button"
           onClick={() => i18n.changeLanguage(lng)}
-          className={`rounded-full px-2.5 py-1 font-semibold uppercase transition ${
+          className={`flex h-8 items-center rounded px-2 font-semibold uppercase transition ${
             current === lng
               ? 'bg-white text-pitch-dark shadow'
               : 'text-white/80 hover:text-white'

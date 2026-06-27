@@ -1,66 +1,168 @@
+import { Info, GripVertical } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/appStore';
 import { teamName } from '../i18n';
+import { GROUP_LETTERS } from '../data/groups';
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import type { ThirdPlaceRanking } from '../types';
+
+interface ThirdPlaceRowProps {
+  ranking: ThirdPlaceRanking;
+  draggable: boolean;
+}
+
+function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    setActivatorNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: ranking.team.code, disabled: !draggable });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.65 : 1,
+    position: isDragging ? ('relative' as const) : undefined,
+    zIndex: isDragging ? 50 : undefined,
+  };
+
+  return (
+    <tr
+      ref={setNodeRef}
+      style={style}
+      className={`border-b border-slate-100 ${
+        ranking.qualifies ? 'bg-emerald-50' : 'bg-white'
+      }`}
+    >
+      <td className="px-1 py-2">
+        <span
+          className={`flex h-6 w-6 items-center justify-center rounded text-xs font-bold text-white ${
+            ranking.qualifies ? 'bg-emerald-700' : 'bg-slate-500'
+          }`}
+        >
+          {ranking.rank}
+        </span>
+      </td>
+      <td className="px-1 py-2 font-medium text-slate-800">
+        {teamName(ranking.team.code, ranking.team.name)}
+      </td>
+      <td className="px-1 py-2 text-center text-slate-600">{ranking.team.group}</td>
+      <td className="px-1 py-2 text-right font-bold tabular-nums">{ranking.points}</td>
+      <td className="px-1 py-2 text-right tabular-nums text-slate-700">
+        {ranking.gd > 0 ? `+${ranking.gd}` : ranking.gd}
+      </td>
+      <td className="px-1 py-2 text-right tabular-nums text-slate-600">{ranking.gf}</td>
+      <td className="px-1 py-2 text-right tabular-nums text-slate-600">
+        {ranking.conductScore}
+      </td>
+      {draggable && (
+        <td className="px-1 py-2 text-center">
+          <button
+            ref={setActivatorNodeRef}
+            type="button"
+            className="icon-button cursor-grab text-slate-500 active:cursor-grabbing hover:bg-slate-100 p-1 rounded"
+            aria-label="Drag team"
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical size={16} aria-hidden="true" />
+          </button>
+        </td>
+      )}
+    </tr>
+  );
+}
 
 export function ThirdPlaceTable() {
   const { t } = useTranslation();
-  const rankings = useAppStore((s) => s.thirdPlaceRankings);
+  const rankings = useAppStore((state) => state.thirdPlaceRankings);
+  const groups = useAppStore((state) => state.groups);
+  const manual = useAppStore((state) => state.isDragAndDropMode);
+  const reorderThirdPlaces = useAppStore((state) => state.reorderThirdPlaces);
+
+  const completed = GROUP_LETTERS.reduce(
+    (total, letter) =>
+      total + groups[letter].matches.filter((match) => match.status === 'completed').length,
+    0
+  );
+  const qualificationActive = manual || completed === 72;
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    if (!over || active.id === over.id) return;
+    const oldIndex = rankings.findIndex((r) => r.team.code === active.id);
+    const newIndex = rankings.findIndex((r) => r.team.code === over.id);
+    if (oldIndex >= 0 && newIndex >= 0) {
+      const newRankings = arrayMove(rankings, oldIndex, newIndex);
+      reorderThirdPlaces(newRankings.map((r) => r.team.code));
+    }
+  };
 
   return (
-    <div className="space-y-2">
-      <table className="w-full border-collapse text-sm">
-        <thead>
-          <tr className="text-[10px] uppercase tracking-wide text-slate-400">
-            <th className="py-1 text-left font-semibold">{t('thirds.rank')}</th>
-            <th className="py-1 text-left font-semibold">{t('thirds.team')}</th>
-            <th className="py-1 text-center font-semibold">{t('thirds.group')}</th>
-            <th className="py-1 text-right font-semibold">{t('thirds.points')}</th>
-            <th className="py-1 text-right font-semibold">{t('thirds.gd')}</th>
-            <th className="py-1 text-right font-semibold">{t('thirds.gf')}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rankings.map((r) => (
-            <tr
-              key={r.team.code}
-              className={`border-t border-slate-100 ${
-                r.qualifies ? 'bg-emerald-50' : 'opacity-60'
-              }`}
+    <div className="space-y-3">
+      {!qualificationActive && (
+        <div className="flex gap-2 rounded border border-sky-200 bg-sky-50 p-3 text-xs leading-relaxed text-sky-950">
+          <Info size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+          <span>{t('thirds.incomplete', { completed })}</span>
+        </div>
+      )}
+      <div className="overflow-x-auto">
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <table className="w-full min-w-[300px] border-collapse text-sm">
+            <thead>
+              <tr className="border-b border-slate-200 text-xs text-slate-600">
+                <th className="px-1 py-2 text-left font-semibold">{t('thirds.rank')}</th>
+                <th className="px-1 py-2 text-left font-semibold">{t('thirds.team')}</th>
+                <th className="px-1 py-2 text-center font-semibold">{t('thirds.group')}</th>
+                <th className="px-1 py-2 text-right font-semibold">{t('thirds.points')}</th>
+                <th className="px-1 py-2 text-right font-semibold">{t('thirds.gd')}</th>
+                <th className="px-1 py-2 text-right font-semibold">{t('thirds.gf')}</th>
+                <th className="px-1 py-2 text-right font-semibold">FP</th>
+                {manual && <th className="px-1 py-2 w-8" />}
+              </tr>
+            </thead>
+            <SortableContext
+              items={rankings.map((r) => r.team.code)}
+              strategy={verticalListSortingStrategy}
             >
-              <td className="py-1.5">
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded text-[11px] font-bold text-white ${
-                    r.qualifies ? 'bg-qualify' : 'bg-eliminate'
-                  }`}
-                >
-                  {r.rank}
-                </span>
-              </td>
-              <td className="py-1.5 font-medium text-slate-700">
-                {teamName(r.team.code, r.team.name)}
-              </td>
-              <td className="py-1.5 text-center text-slate-500">{r.team.group}</td>
-              <td className="py-1.5 text-right font-bold tabular-nums">{r.points}</td>
-              <td className="py-1.5 text-right tabular-nums text-slate-500">
-                {r.gd > 0 ? `+${r.gd}` : r.gd}
-              </td>
-              <td className="py-1.5 text-right tabular-nums text-slate-400">{r.gf}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div className="flex items-center gap-3 text-[11px] text-slate-500">
-        <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-qualify" />{' '}
-          {t('thirds.qualifyLegend')}
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block h-3 w-3 rounded bg-eliminate" />{' '}
-          {t('thirds.eliminatedLegend')}
-        </span>
+              <tbody>
+                {rankings.map((ranking) => (
+                  <ThirdPlaceRow
+                    key={ranking.team.code}
+                    ranking={ranking}
+                    draggable={manual}
+                  />
+                ))}
+              </tbody>
+            </SortableContext>
+          </table>
+        </DndContext>
       </div>
-      <p className="text-[11px] leading-snug text-slate-400">{t('thirds.tiebreakers')}</p>
+      <p className="text-xs leading-relaxed text-slate-600">{t('thirds.tiebreakers')}</p>
     </div>
   );
 }

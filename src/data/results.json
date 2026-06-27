@@ -1,0 +1,77 @@
+{
+  "_comment": "Resultados oficiales de la fase de grupos hasta el momento. Edita este archivo para actualizar los marcadores. Formato: { homeGoals, awayGoals }",
+
+  "A-M1": { "homeGoals": 2, "awayGoals": 0 },
+  "A-M2": { "homeGoals": 2, "awayGoals": 1 },
+  "A-M3": { "homeGoals": 1, "awayGoals": 0 },
+  "A-M4": { "homeGoals": 1, "awayGoals": 1 },
+  "A-M5": { "homeGoals": 0, "awayGoals": 3 },
+  "A-M6": { "homeGoals": 1, "awayGoals": 0 },
+
+  "B-M1": { "homeGoals": 1, "awayGoals": 1 },
+  "B-M2": { "homeGoals": 1, "awayGoals": 1 },
+  "B-M3": { "homeGoals": 6, "awayGoals": 0 },
+  "B-M4": { "homeGoals": 4, "awayGoals": 1 },
+  "B-M5": { "homeGoals": 2, "awayGoals": 1 },
+  "B-M6": { "homeGoals": 3, "awayGoals": 1 },
+
+  "C-M1": { "homeGoals": 1, "awayGoals": 1 },
+  "C-M2": { "homeGoals": 0, "awayGoals": 1 },
+  "C-M3": { "homeGoals": 3, "awayGoals": 0 },
+  "C-M4": { "homeGoals": 0, "awayGoals": 1 },
+  "C-M5": { "homeGoals": 0, "awayGoals": 3 },
+  "C-M6": { "homeGoals": 4, "awayGoals": 2 },
+
+  "D-M1": { "homeGoals": 4, "awayGoals": 1 },
+  "D-M2": { "homeGoals": 2, "awayGoals": 0 },
+  "D-M3": { "homeGoals": 2, "awayGoals": 0 },
+  "D-M4": { "homeGoals": 0, "awayGoals": 1 },
+  "D-M5": { "homeGoals": 3, "awayGoals": 2 },
+  "D-M6": { "homeGoals": 0, "awayGoals": 0 },
+
+  "E-M1": { "homeGoals": 7, "awayGoals": 1 },
+  "E-M2": { "homeGoals": 1, "awayGoals": 0 },
+  "E-M3": { "homeGoals": 2, "awayGoals": 1 },
+  "E-M4": { "homeGoals": 0, "awayGoals": 0 },
+  "E-M5": { "homeGoals": 2, "awayGoals": 1 },
+  "E-M6": { "homeGoals": 0, "awayGoals": 2 },
+
+  "F-M1": { "homeGoals": 2, "awayGoals": 2 },
+  "F-M2": { "homeGoals": 5, "awayGoals": 1 },
+  "F-M3": { "homeGoals": 5, "awayGoals": 1 },
+  "F-M4": { "homeGoals": 0, "awayGoals": 4 },
+  "F-M5": { "homeGoals": 1, "awayGoals": 3 },
+  "F-M6": { "homeGoals": 1, "awayGoals": 1 },
+
+  "G-M1": { "homeGoals": 1, "awayGoals": 1 },
+  "G-M2": { "homeGoals": 2, "awayGoals": 2 },
+  "G-M3": { "homeGoals": 0, "awayGoals": 0 },
+  "G-M4": { "homeGoals": 1, "awayGoals": 3 },
+
+  "H-M1": { "homeGoals": 0, "awayGoals": 0 },
+  "H-M2": { "homeGoals": 1, "awayGoals": 1 },
+  "H-M3": { "homeGoals": 4, "awayGoals": 0 },
+  "H-M4": { "homeGoals": 2, "awayGoals": 2 },
+
+  "I-M1": { "homeGoals": 3, "awayGoals": 1 },
+  "I-M2": { "homeGoals": 1, "awayGoals": 4 },
+  "I-M3": { "homeGoals": 3, "awayGoals": 0 },
+  "I-M4": { "homeGoals": 3, "awayGoals": 2 },
+  "I-M5": { "homeGoals": 1, "awayGoals": 4 },
+  "I-M6": { "homeGoals": 5, "awayGoals": 0 },
+
+  "J-M1": { "homeGoals": 3, "awayGoals": 0 },
+  "J-M2": { "homeGoals": 3, "awayGoals": 1 },
+  "J-M3": { "homeGoals": 2, "awayGoals": 0 },
+  "J-M4": { "homeGoals": 1, "awayGoals": 2 },
+
+  "K-M1": { "homeGoals": 1, "awayGoals": 1 },
+  "K-M2": { "homeGoals": 1, "awayGoals": 3 },
+  "K-M3": { "homeGoals": 5, "awayGoals": 0 },
+  "K-M4": { "homeGoals": 1, "awayGoals": 0 },
+
+  "L-M1": { "homeGoals": 4, "awayGoals": 2 },
+  "L-M2": { "homeGoals": 1, "awayGoals": 0 },
+  "L-M3": { "homeGoals": 0, "awayGoals": 0 },
+  "L-M4": { "homeGoals": 0, "awayGoals": 1 }
+}

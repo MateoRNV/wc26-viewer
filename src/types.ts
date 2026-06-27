@@ -2,29 +2,46 @@ export type GroupLetter =
   | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
   | 'G' | 'H' | 'I' | 'J' | 'K' | 'L';
 
-export type Position = 1 | 2 | 3 | 4; // 1=winner, 2=runner-up, 3=third, 4=fourth
+export type Position = 1 | 2 | 3 | 4;
+export type MatchStatus = 'unplayed' | 'scheduled' | 'completed';
 
 export interface Team {
   code: string;
   name: string;
   group: GroupLetter;
   position: Position;
-  /** Static FIFA ranking used as the final tiebreaker (lower = better). */
+  /** Most recent FIFA ranking. Lower is better. */
   fifaRank: number;
+  /** Older published rankings, newest first, used only if the latest is tied. */
+  fifaRankHistory?: number[];
+}
+
+export interface ConductCards {
+  yellow: number;
+  indirectRed: number;
+  directRed: number;
+  yellowDirectRed: number;
+}
+
+export interface MatchConduct {
+  home: ConductCards;
+  away: ConductCards;
 }
 
 export interface Match {
   id: string;
   homeCode: string;
   awayCode: string;
-  homeGoals: number;
-  awayGoals: number;
-  yellowCards?: { home: number; away: number };
+  status: MatchStatus;
+  homeGoals: number | null;
+  awayGoals: number | null;
+  conduct: MatchConduct;
+  preseeded?: boolean;
 }
 
 export interface Group {
   letter: GroupLetter;
-  teams: Team[]; // length 4, ordered by current position (1-4)
+  teams: Team[];
   matches: Match[];
 }
 
@@ -36,21 +53,25 @@ export interface BracketSlot {
 }
 
 export interface BracketMatchup {
-  matchNumber: number; // 1-16
+  matchNumber: number;
   team1: BracketSlot;
   team2: BracketSlot;
-  venue?: string;
-  date?: string;
 }
 
 export interface MatrixScenario {
-  groupCombination: string; // e.g. "ABCDEFGH" (sorted alphabetically)
+  option: number;
+  groupCombination: string;
   matchups: BracketMatchup[];
-  /** true when sourced from the official FIFA table, false when generated. */
-  official?: boolean;
+  official: true;
 }
 
 export interface MatrixData {
+  source: {
+    title: string;
+    annex: string;
+    pages: string;
+    winnerColumns: string[];
+  };
   scenarios: MatrixScenario[];
 }
 
@@ -60,12 +81,48 @@ export interface ThirdPlaceRanking {
   points: number;
   gd: number;
   gf: number;
-  yellowCards: number;
-  qualifies: boolean; // top 8 advance
+  conductScore: number;
+  qualifies: boolean;
 }
 
-/** A resolved matchup with the concrete teams filled in (for rendering). */
 export interface ResolvedMatchup extends BracketMatchup {
   team1Code: string | null;
   team2Code: string | null;
+}
+
+export type KnockoutRound =
+  | 'round32'
+  | 'round16'
+  | 'quarterfinal'
+  | 'semifinal'
+  | 'thirdPlace'
+  | 'final';
+
+export type KnockoutDecision = 'regular' | 'extra-time' | 'penalties';
+
+export interface KnockoutResult {
+  matchNumber: number;
+  homeGoals: number | null;
+  awayGoals: number | null;
+  penaltiesHome: number | null;
+  penaltiesAway: number | null;
+  decision: KnockoutDecision;
+  status: MatchStatus;
+}
+
+export interface KnockoutMatchView extends KnockoutResult {
+  round: KnockoutRound;
+  homeCode: string | null;
+  awayCode: string | null;
+  winnerCode: string | null;
+  loserCode: string | null;
+}
+
+export interface PortableState {
+  version: 1;
+  exportedAt: string;
+  groups: Record<GroupLetter, Group>;
+  knockoutResults: Record<number, KnockoutResult>;
+  isDragAndDropMode: boolean;
+  thirdPlaceOrder?: string[] | null;
 }

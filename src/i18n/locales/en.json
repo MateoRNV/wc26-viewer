@@ -1,29 +1,44 @@
 {
   "header": {
-    "title": "Bracket Simulator · 2026 World Cup",
-    "subtitle": "Round of 32 · 8 best third-placed teams",
-    "hintSimulator": "edit goals and watch the bracket recompute",
-    "hintSandbox": "drag teams to force the standings",
-    "matrixLoading": "loading matrix…",
-    "matrixError": "⚠️ failed to load the matrix"
+    "title": "World Cup 2026 Simulator",
+    "subtitle": "FIFA Regulations and official Annex C",
+    "matrixError": "The official Annex C could not be loaded.",
+    "matrix": {
+      "idle": "Preparing the official matrix...",
+      "loading": "Loading the official matrix...",
+      "error": "Matrix loading error",
+      "ready": "Official matrix ready"
+    }
   },
   "modes": {
-    "simulator": "Simulator",
-    "sandbox": "Sandbox"
+    "label": "Standings mode",
+    "simulator": "Official Results",
+    "sandbox": "Predict / Simulate"
   },
-  "language": {
-    "label": "Language",
-    "es": "Español",
-    "en": "English"
+  "language": { "label": "Language", "es": "Spanish", "en": "English" },
+  "actions": {
+    "reset": "Reset simulation",
+    "import": "Import JSON",
+    "export": "Export JSON",
+    "share": "Copy link",
+    "resetConfirm": "Reset every group and knockout result?",
+    "resetDone": "Simulation reset",
+    "imported": "Simulation imported",
+    "exported": "File exported",
+    "linkCopied": "Link copied",
+    "importError": "This file does not contain a valid simulation."
   },
   "panels": {
+    "navigation": "Simulator views",
     "groups": "Groups",
-    "thirds": "Third-Place Table",
-    "bracket": "Round of 32"
+    "thirds": "Best thirds",
+    "bracket": "Knockout",
+    "nav": { "groups": "Groups", "thirds": "Thirds", "bracket": "Bracket" }
   },
   "group": {
     "title": "Group {{letter}}",
-    "dragHint": "drag ↕"
+    "manual": "manual order",
+    "dragTeam": "Move {{team}} with keyboard or pointer"
   },
   "thirds": {
     "rank": "#",
@@ -32,72 +47,57 @@
     "points": "Pts",
     "gd": "GD",
     "gf": "GF",
-    "qualifyLegend": "Top 8 advance",
-    "eliminatedLegend": "Eliminated",
-    "tiebreakers": "Ranked by: Points → Goal difference → Goals for → Fair-play → FIFA ranking."
+    "incomplete": "{{completed}} of 72 matches are complete. The eight qualifiers are confirmed when every group is finished.",
+    "tiebreakers": "FIFA order: points, goal difference, goals scored, team conduct and world ranking. Ties within a group first use the head-to-head matches among the teams concerned.",
+    "qualifyLegend": "Top eight advance"
   },
   "bracket": {
-    "combination": "Combination: {{key}}",
-    "official": "✓ Official FIFA scenario",
-    "generated": "~ Generated assignment (no rematch)",
-    "loadingMatrix": "Loading the 495-combination matrix…",
-    "defineThirds": "Define the 8 qualifying third-placed teams (center table) to resolve the bracket.",
-    "noScenario": "No scenario for {{key}}",
-    "pending": "to be defined",
-    "matchPrefix": "M",
-    "slotThird": "3rd {{group}}"
+    "option": "Option {{option}} · {{key}}",
+    "official": "FIFA Annex C",
+    "loadingMatrix": "Loading all 495 official combinations...",
+    "defineThirds": "Complete all 72 group matches or use manual mode to define the eight best third-placed teams.",
+    "noScenario": "There is no official option for {{key}}.",
+    "pending": "To be decided",
+    "winner": "Winner",
+    "champion": "World Cup 2026 champion",
+    "penalties": "Pens",
+    "rounds": {
+      "round32": "Round of 32",
+      "round16": "Round of 16",
+      "quarterfinal": "Quarter-finals",
+      "semifinal": "Semi-finals",
+      "thirdPlace": "Third place",
+      "final": "Final"
+    },
+    "decisions": {
+      "regular": "Regular time",
+      "extra-time": "Extra time",
+      "penalties": "Penalties"
+    },
+    "decisionShort": { "regular": "90'", "extra-time": "ET", "penalties": "PEN" }
   },
   "match": {
-    "goalsAria": "{{team}} goals"
+    "goalsAria": "{{team}} goals",
+    "conduct": "Cards and conduct",
+    "cards": {
+      "yellow": "YC",
+      "indirectRed": "2YC",
+      "directRed": "RC",
+      "yellowDirectRed": "YC+RC"
+    }
   },
   "teams": {
-    "MEX": "Mexico",
-    "CRC": "Costa Rica",
-    "KSA": "Saudi Arabia",
-    "RSA": "South Africa",
-    "CAN": "Canada",
-    "BIH": "Bosnia & H.",
-    "QAT": "Qatar",
-    "CIV": "Ivory Coast",
-    "USA": "United States",
-    "POL": "Poland",
-    "JAM": "Jamaica",
-    "UZB": "Uzbekistan",
-    "ARG": "Argentina",
-    "JPN": "Japan",
-    "NGA": "Nigeria",
-    "PAN": "Panama",
-    "GER": "Germany",
-    "ECU": "Ecuador",
-    "KOR": "South Korea",
-    "CPV": "Cape Verde",
-    "BRA": "Brazil",
-    "CRO": "Croatia",
-    "EGY": "Egypt",
-    "NZL": "New Zealand",
-    "ESP": "Spain",
-    "URU": "Uruguay",
-    "IRN": "Iran",
-    "HAI": "Haiti",
-    "POR": "Portugal",
-    "COL": "Colombia",
-    "AUS": "Australia",
-    "JOR": "Jordan",
-    "FRA": "France",
-    "NOR": "Norway",
-    "SEN": "Senegal",
-    "CUW": "Curaçao",
-    "ENG": "England",
-    "NED": "Netherlands",
-    "GHA": "Ghana",
-    "PAR": "Paraguay",
-    "BEL": "Belgium",
-    "MAR": "Morocco",
-    "CHL": "Chile",
-    "TUN": "Tunisia",
-    "ITA": "Italy",
-    "AUT": "Austria",
-    "SCO": "Scotland",
-    "PAN2": "Panama B"
+    "MEX": "Mexico", "RSA": "South Africa", "KOR": "Korea Republic", "CZE": "Czechia",
+    "CAN": "Canada", "BIH": "Bosnia and Herzegovina", "QAT": "Qatar", "SUI": "Switzerland",
+    "BRA": "Brazil", "MAR": "Morocco", "HAI": "Haiti", "SCO": "Scotland",
+    "USA": "United States", "PAR": "Paraguay", "AUS": "Australia", "TUR": "Turkiye",
+    "GER": "Germany", "CUW": "Curacao", "CIV": "Cote d'Ivoire", "ECU": "Ecuador",
+    "NED": "Netherlands", "JPN": "Japan", "SWE": "Sweden", "TUN": "Tunisia",
+    "BEL": "Belgium", "EGY": "Egypt", "IRN": "IR Iran", "NZL": "New Zealand",
+    "ESP": "Spain", "CPV": "Cabo Verde", "KSA": "Saudi Arabia", "URU": "Uruguay",
+    "FRA": "France", "SEN": "Senegal", "IRQ": "Iraq", "NOR": "Norway",
+    "ARG": "Argentina", "ALG": "Algeria", "AUT": "Austria", "JOR": "Jordan",
+    "POR": "Portugal", "COD": "Congo DR", "UZB": "Uzbekistan", "COL": "Colombia",
+    "ENG": "England", "CRO": "Croatia", "GHA": "Ghana", "PAN": "Panama"
   }
 }

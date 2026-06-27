@@ -20,12 +20,12 @@
     "reset": "Reset simulation",
     "import": "Import JSON",
     "export": "Export JSON",
-    "share": "Copy link",
+    "share": "Share your simulation",
     "resetConfirm": "Reset every group and knockout result?",
     "resetDone": "Simulation reset",
     "imported": "Simulation imported",
     "exported": "File exported",
-    "linkCopied": "Link copied",
+    "linkCopied": "Link copied to clipboard",
     "importError": "This file does not contain a valid simulation."
   },
   "panels": {
@@ -38,7 +38,14 @@
   "group": {
     "title": "Group {{letter}}",
     "manual": "manual order",
-    "dragTeam": "Move {{team}} with keyboard or pointer"
+    "dragTeam": "Move {{team}} with keyboard or pointer",
+    "collapseAll": "Collapse all",
+    "expandAll": "Expand all",
+    "viewMatches": "View remaining matches",
+    "viewGroups": "View groups",
+    "standings": "Group standings",
+    "remainingMatches": "Remaining group stage matches",
+    "noRemainingMatches": "No matches left to play"
   },
   "thirds": {
     "rank": "#",
@@ -49,7 +56,12 @@
     "gf": "GF",
     "incomplete": "{{completed}} of 72 matches are complete. The eight qualifiers are confirmed when every group is finished.",
     "tiebreakers": "FIFA order: points, goal difference, goals scored, team conduct and world ranking. Ties within a group first use the head-to-head matches among the teams concerned.",
-    "qualifyLegend": "Top eight advance"
+    "qualifyLegend": "Top eight advance",
+    "statusHeader": "Pending matches",
+    "locked": "All matches played — final standing",
+    "pending": "{{count}} match(es) still to play",
+    "pendingNote": "The number shows how many group matches the team still has to play. Their final position may still change.",
+    "lockedNote": "This team has played all its group matches. Their standing is final."
   },
   "bracket": {
     "option": "Option {{option}} · {{key}}",
@@ -74,7 +86,9 @@
       "extra-time": "Extra time",
       "penalties": "Penalties"
     },
-    "decisionShort": { "regular": "90'", "extra-time": "ET", "penalties": "PEN" }
+    "decisionShort": { "regular": "90'", "extra-time": "ET", "penalties": "PEN" },
+    "viewList": "List view",
+    "viewTree": "Tree view"
   },
   "match": {
     "goalsAria": "{{team}} goals",

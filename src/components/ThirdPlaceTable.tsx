@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { useAppStore } from '../store/appStore';
 import { teamName } from '../i18n';
 import { GROUP_LETTERS } from '../data/groups';
+import { Flag } from './Flag';
 import {
   DndContext,
   KeyboardSensor,
@@ -20,14 +21,16 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import type { ThirdPlaceRanking } from '../types';
+import type { Group, ThirdPlaceRanking } from '../types';
 
 interface ThirdPlaceRowProps {
   ranking: ThirdPlaceRanking;
   draggable: boolean;
+  pendingMatchCount: number;
 }
 
-function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
+function ThirdPlaceRow({ ranking, draggable, pendingMatchCount }: ThirdPlaceRowProps) {
+  const { t } = useTranslation();
   const {
     attributes,
     listeners,
@@ -46,6 +49,8 @@ function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
     zIndex: isDragging ? 50 : undefined,
   };
 
+  const isLocked = pendingMatchCount === 0;
+
   return (
     <tr
       ref={setNodeRef}
@@ -63,8 +68,11 @@ function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
           {ranking.rank}
         </span>
       </td>
-      <td className="px-1 py-2 font-medium text-slate-800">
-        {teamName(ranking.team.code, ranking.team.name)}
+      <td className="px-1 py-2">
+        <div className="flex items-center gap-1.5">
+          <Flag code={ranking.team.code} className="h-3.5 w-auto rounded-[1px]" />
+          <span className="font-medium text-slate-800">{teamName(ranking.team.code, ranking.team.name)}</span>
+        </div>
       </td>
       <td className="px-1 py-2 text-center text-slate-600">{ranking.team.group}</td>
       <td className="px-1 py-2 text-right font-bold tabular-nums">{ranking.points}</td>
@@ -74,6 +82,24 @@ function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
       <td className="px-1 py-2 text-right tabular-nums text-slate-600">{ranking.gf}</td>
       <td className="px-1 py-2 text-right tabular-nums text-slate-600">
         {ranking.conductScore}
+      </td>
+      {/* Pending indicator column */}
+      <td className="px-1 py-2 text-center">
+        {isLocked ? (
+          <span
+            title={t('thirds.locked', 'Resultados definitivos')}
+            className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-emerald-100 text-[9px] font-bold text-emerald-700"
+          >
+            ✓
+          </span>
+        ) : (
+          <span
+            title={t('thirds.pending', { count: pendingMatchCount })}
+            className="inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-full bg-amber-100 px-1 text-[9px] font-bold text-amber-700"
+          >
+            {pendingMatchCount}✦
+          </span>
+        )}
       </td>
       {draggable && (
         <td className="px-1 py-2 text-center">
@@ -91,6 +117,15 @@ function ThirdPlaceRow({ ranking, draggable }: ThirdPlaceRowProps) {
       )}
     </tr>
   );
+}
+
+/** Returns how many matches are still unplayed for a team in its group */
+function pendingMatchesForTeam(group: Group, teamCode: string): number {
+  return group.matches.filter(
+    (m) =>
+      (m.homeCode === teamCode || m.awayCode === teamCode) &&
+      m.status !== 'completed'
+  ).length;
 }
 
 export function ThirdPlaceTable() {
@@ -122,6 +157,11 @@ export function ThirdPlaceTable() {
     }
   };
 
+  const hasPending = rankings.some((r) => {
+    const group = groups[r.team.group];
+    return pendingMatchesForTeam(group, r.team.code) > 0;
+  });
+
   return (
     <div className="space-y-3">
       {!qualificationActive && (
@@ -142,6 +182,7 @@ export function ThirdPlaceTable() {
                 <th className="px-1 py-2 text-right font-semibold">{t('thirds.gd')}</th>
                 <th className="px-1 py-2 text-right font-semibold">{t('thirds.gf')}</th>
                 <th className="px-1 py-2 text-right font-semibold">FP</th>
+                <th className="px-1 py-2 text-center font-semibold w-8" title={t('thirds.statusHeader', 'Partidos pendientes')}>⏳</th>
                 {manual && <th className="px-1 py-2 w-8" />}
               </tr>
             </thead>
@@ -150,19 +191,36 @@ export function ThirdPlaceTable() {
               strategy={verticalListSortingStrategy}
             >
               <tbody>
-                {rankings.map((ranking) => (
-                  <ThirdPlaceRow
-                    key={ranking.team.code}
-                    ranking={ranking}
-                    draggable={manual}
-                  />
-                ))}
+                {rankings.map((ranking) => {
+                  const group = groups[ranking.team.group];
+                  const pendingMatchCount = pendingMatchesForTeam(group, ranking.team.code);
+                  return (
+                    <ThirdPlaceRow
+                      key={ranking.team.code}
+                      ranking={ranking}
+                      draggable={manual}
+                      pendingMatchCount={pendingMatchCount}
+                    />
+                  );
+                })}
               </tbody>
             </SortableContext>
           </table>
         </DndContext>
       </div>
-      <p className="text-xs leading-relaxed text-slate-600">{t('thirds.tiebreakers')}</p>
+      <div className="space-y-1.5">
+        <p className="text-xs leading-relaxed text-slate-600">{t('thirds.tiebreakers')}</p>
+        {hasPending && (
+          <p className="text-xs leading-relaxed text-amber-700">
+            <span className="font-bold">✦</span>{' '}
+            {t('thirds.pendingNote', 'El número indica los partidos que le quedan por jugar a ese equipo. Su posición aún puede cambiar.')}
+          </p>
+        )}
+        <p className="text-xs leading-relaxed text-emerald-700">
+          <span className="font-bold">✓</span>{' '}
+          {t('thirds.lockedNote', 'El equipo ha jugado todos sus partidos de grupo. Su clasificación está fijada.')}
+        </p>
+      </div>
     </div>
   );
 }

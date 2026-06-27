@@ -52,6 +52,8 @@
   "H-M2": { "homeGoals": 1, "awayGoals": 1 },
   "H-M3": { "homeGoals": 4, "awayGoals": 0 },
   "H-M4": { "homeGoals": 2, "awayGoals": 2 },
+  "H-M5": { "homeGoals": 0, "awayGoals": 1 },
+  "H-M6": { "homeGoals": 0, "awayGoals": 0 },
 
   "I-M1": { "homeGoals": 3, "awayGoals": 1 },
   "I-M2": { "homeGoals": 1, "awayGoals": 4 },

@@ -11,7 +11,7 @@ type View = 'groups' | 'thirds' | 'bracket';
 export function Layout() {
   const { t } = useTranslation();
   const [activeView, setActiveView] = useState<View>('groups');
-  const [groupsView, setGroupsView] = useState<'groups' | 'matches'>('groups');
+  const [groupsView, setGroupsView] = useState<'groups' | 'matches'>('matches');
   const collapsedGroups = useAppStore((state) => state.collapsedGroups);
   const collapseAll = useAppStore((state) => state.collapseAllGroups);
 
@@ -72,7 +72,7 @@ export function Layout() {
                   className="rounded bg-slate-50 border border-slate-200 px-2 py-1 text-[10px] font-semibold text-slate-600 hover:bg-slate-100 hover:text-slate-800 transition"
                 >
                   {groupsView === 'groups'
-                    ? t('group.viewMatches', 'Ver partidos')
+                    ? t('group.viewMatches', 'Ver partidos restantes')
                     : t('group.viewGroups', 'Ver grupos')}
                 </button>
               </div>

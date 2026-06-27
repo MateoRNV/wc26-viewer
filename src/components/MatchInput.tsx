@@ -3,6 +3,7 @@ import { ShieldAlert } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import type { ConductCards, Match } from '../types';
 import { useAppStore } from '../store/appStore';
+import { Flag } from './Flag';
 
 interface Props {
   match: Match;
@@ -40,10 +41,11 @@ export function MatchInput({ match, nameByCode }: Props) {
 
   return (
     <div className="border-t border-slate-100 py-1.5 first:border-t-0">
-      <div className="grid grid-cols-[minmax(0,1fr)_2.5rem_auto_2.5rem_minmax(0,1fr)_2rem] items-center gap-1 text-xs">
+      <div className="grid grid-cols-[minmax(0,1fr)_1rem_2.5rem_auto_2.5rem_1rem_minmax(0,1fr)_2rem] items-center gap-1 text-xs">
         <span className="truncate text-right text-slate-700">
           {nameByCode(match.homeCode)}
         </span>
+        <Flag code={match.homeCode} />
         <ScoreInput
           value={match.homeGoals}
           label={t('match.goalsAria', { team: nameByCode(match.homeCode) })}
@@ -61,6 +63,7 @@ export function MatchInput({ match, nameByCode }: Props) {
           }
           disabled={!isDnd}
         />
+        <Flag code={match.awayCode} />
         <span className="truncate text-slate-700">{nameByCode(match.awayCode)}</span>
         <button
           type="button"

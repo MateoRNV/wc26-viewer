@@ -1,19 +1,49 @@
 import { useTranslation } from 'react-i18next';
 import type { KnockoutDecision, KnockoutMatchView, KnockoutResult } from '../types';
 import { useAppStore } from '../store/appStore';
+import { Flag } from './Flag';
 
 export function KnockoutMatchCard({
   match,
   nameByCode,
+  minimized = false,
 }: {
   match: KnockoutMatchView;
   nameByCode: (code: string | null) => string;
+  minimized?: boolean;
 }) {
   const { t } = useTranslation();
   const update = useAppStore((state) => state.updateKnockoutResult);
   const isDnd = useAppStore((state) => state.isDragAndDropMode);
   const ready = Boolean(match.homeCode && match.awayCode);
   const disabled = !isDnd || !ready;
+
+  if (minimized) {
+    return (
+      <article className="rounded border border-slate-200 bg-white px-2.5 py-1.5">
+        <div className="flex items-center justify-between mb-1">
+          <span className="font-mono text-[10px] text-slate-400">M{match.matchNumber}</span>
+          {match.winnerCode && (
+            <span className="text-[10px] font-bold text-emerald-700">✓</span>
+          )}
+        </div>
+        <div className={`flex items-center gap-1.5 text-xs leading-tight ${match.winnerCode === match.homeCode ? 'font-bold text-emerald-800' : 'text-slate-700'}`}>
+          {match.homeCode && <Flag code={match.homeCode} className="h-3 w-auto shrink-0 rounded-[1px]" />}
+          <span className="min-w-0 flex-1 truncate">{nameByCode(match.homeCode)}</span>
+          {match.homeGoals !== null && (
+            <span className="shrink-0 tabular-nums font-bold text-slate-900">{match.homeGoals}</span>
+          )}
+        </div>
+        <div className={`flex items-center gap-1.5 text-xs leading-tight ${match.winnerCode === match.awayCode ? 'font-bold text-emerald-800' : 'text-slate-700'}`}>
+          {match.awayCode && <Flag code={match.awayCode} className="h-3 w-auto shrink-0 rounded-[1px]" />}
+          <span className="min-w-0 flex-1 truncate">{nameByCode(match.awayCode)}</span>
+          {match.awayGoals !== null && (
+            <span className="shrink-0 tabular-nums font-bold text-slate-900">{match.awayGoals}</span>
+          )}
+        </div>
+      </article>
+    );
+  }
 
   const commit = (patch: Partial<KnockoutResult>) => {
     const next = { ...match, ...patch };
@@ -56,6 +86,7 @@ export function KnockoutMatchCard({
         )}
       </div>
       <TeamScoreRow
+        code={match.homeCode}
         name={nameByCode(match.homeCode)}
         label={t('match.goalsAria', { team: nameByCode(match.homeCode) })}
         value={match.homeGoals}
@@ -64,6 +95,7 @@ export function KnockoutMatchCard({
         onChange={(value) => commit({ homeGoals: parse(value) })}
       />
       <TeamScoreRow
+        code={match.awayCode}
         name={nameByCode(match.awayCode)}
         label={t('match.goalsAria', { team: nameByCode(match.awayCode) })}
         value={match.awayGoals}
@@ -116,6 +148,7 @@ export function KnockoutMatchCard({
 }
 
 function TeamScoreRow({
+  code,
   name,
   label,
   value,
@@ -123,6 +156,7 @@ function TeamScoreRow({
   winner,
   onChange,
 }: {
+  code: string | null;
   name: string;
   label: string;
   value: number | null;
@@ -132,6 +166,7 @@ function TeamScoreRow({
 }) {
   return (
     <div className={`flex min-h-11 items-center gap-2 border-t border-slate-100 first:border-0 ${winner ? 'font-bold text-emerald-800' : 'text-slate-800'}`}>
+      {code && <Flag code={code} className="h-3.5 w-auto rounded-[1px] shrink-0" />}
       <span className="min-w-0 flex-1 truncate">{name}</span>
       <input
         type="number"

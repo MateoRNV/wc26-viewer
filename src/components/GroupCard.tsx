@@ -22,6 +22,7 @@ import { useAppStore } from '../store/appStore';
 import { computeStats, isGroupComplete } from '../utils/scoringRules';
 import { teamName } from '../i18n';
 import { MatchInput } from './MatchInput';
+import { Flag } from './Flag';
 
 const POSITION_STYLES = [
   'bg-emerald-700',
@@ -154,13 +155,14 @@ function StandingRow({
         transition,
         opacity: isDragging ? 0.65 : 1,
       }}
-      className={`grid min-h-9 grid-cols-[1.25rem_minmax(0,1fr)_1.75rem_2rem_1.75rem_2rem] items-center gap-1 rounded border px-1.5 text-xs ${
+      className={`grid min-h-9 grid-cols-[1.25rem_1.25rem_minmax(0,1fr)_1.75rem_2rem_1.75rem_2rem] items-center gap-1 rounded border px-1.5 text-xs ${
         index === 2 ? 'border-amber-300 bg-amber-50' : 'border-slate-200 bg-white'
       }`}
     >
       <span className={`flex h-5 w-5 items-center justify-center rounded text-[11px] font-bold text-white ${POSITION_STYLES[index]}`}>
         {index + 1}
       </span>
+      <Flag code={team.code} />
       <span className="truncate font-medium text-slate-800">{name}</span>
       <span className="text-right font-bold tabular-nums text-slate-900">{pts}</span>
       <span className="text-right tabular-nums text-slate-600">{gd > 0 ? `+${gd}` : gd}</span>

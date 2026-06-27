@@ -20,12 +20,12 @@
     "reset": "Reiniciar simulación",
     "import": "Importar JSON",
     "export": "Exportar JSON",
-    "share": "Copiar enlace",
+    "share": "Comparte tu simulación",
     "resetConfirm": "¿Reiniciar todos los grupos y eliminatorias?",
     "resetDone": "Simulación reiniciada",
     "imported": "Simulación importada",
     "exported": "Archivo exportado",
-    "linkCopied": "Enlace copiado",
+    "linkCopied": "Enlace copiado al portapapeles",
     "importError": "El archivo no contiene una simulación válida."
   },
   "panels": {
@@ -38,7 +38,14 @@
   "group": {
     "title": "Grupo {{letter}}",
     "manual": "orden manual",
-    "dragTeam": "Mover {{team}} con el teclado o el puntero"
+    "dragTeam": "Mover {{team}} con el teclado o el puntero",
+    "collapseAll": "Contraer todos",
+    "expandAll": "Expandir todos",
+    "viewMatches": "Ver partidos restantes",
+    "viewGroups": "Ver grupos",
+    "standings": "Clasificación de grupos",
+    "remainingMatches": "Partidos restantes de la fase de grupos",
+    "noRemainingMatches": "No quedan partidos por jugar"
   },
   "thirds": {
     "rank": "#",
@@ -48,7 +55,12 @@
     "gd": "DG",
     "gf": "GF",
     "incomplete": "Se han completado {{completed}} de 72 partidos. Los ocho clasificados se confirman al cerrar todos los grupos.",
-    "tiebreakers": "Orden FIFA: puntos, diferencia de goles, goles a favor, conducta de equipo y ranking mundial. El desempate dentro de cada grupo aplica primero los enfrentamientos directos entre los equipos implicados."
+    "tiebreakers": "Orden FIFA: puntos, diferencia de goles, goles a favor, conducta de equipo y ranking mundial. El desempate dentro de cada grupo aplica primero los enfrentamientos directos entre los equipos implicados.",
+    "statusHeader": "Partidos pendientes",
+    "locked": "Todos los partidos jugados — posición definitiva",
+    "pending": "{{count}} partido(s) por jugar",
+    "pendingNote": "El número indica los partidos que le quedan por jugar a ese equipo. Su posición aún puede cambiar.",
+    "lockedNote": "El equipo ha jugado todos sus partidos de grupo. Su clasificación está fijada."
   },
   "bracket": {
     "option": "Opción {{option}} · {{key}}",
@@ -73,7 +85,9 @@
       "extra-time": "Prórroga",
       "penalties": "Penaltis"
     },
-    "decisionShort": { "regular": "90'", "extra-time": "PR", "penalties": "PEN" }
+    "decisionShort": { "regular": "90'", "extra-time": "PR", "penalties": "PEN" },
+    "viewList": "Vista lista",
+    "viewTree": "Vista árbol"
   },
   "match": {
     "goalsAria": "Goles de {{team}}",

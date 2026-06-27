@@ -41,6 +41,12 @@ interface AppState extends DerivedState {
   isDragAndDropMode: boolean;
   thirdPlaceOrder: string[] | null;
   collapsedGroups: Record<GroupLetter, boolean>;
+  /** Snapshot of simulation state saved when switching to Official Results mode */
+  savedSimulation: {
+    groups: Record<GroupLetter, Group>;
+    knockoutResults: Record<number, KnockoutResult>;
+    thirdPlaceOrder: string[] | null;
+  } | null;
   toggleGroupCollapse: (letter: GroupLetter) => void;
   collapseAllGroups: (collapsed: boolean) => void;
   loadMatrix: () => Promise<void>;
@@ -178,8 +184,9 @@ export const useAppStore = create<AppState>()(
       knockoutResults: freshKnockout,
       matrix: null,
       matrixStatus: 'idle',
-      isDragAndDropMode: false,
+      isDragAndDropMode: true,
       thirdPlaceOrder: null,
+      savedSimulation: null,
       collapsedGroups: {
         A: false, B: false, C: false, D: false, E: false, F: false,
         G: false, H: false, I: false, J: false, K: false, L: false,
@@ -323,34 +330,44 @@ export const useAppStore = create<AppState>()(
 
       toggleMode: (isDragAndDropMode) => {
         const current = get();
-        let groups = current.groups;
+
+        // --- Switching TO Official Results (isDragAndDropMode = false) ---
         if (!isDragAndDropMode) {
-          groups = { ...groups };
-          for (const letter of GROUP_LETTERS) {
-            groups[letter] = {
-              ...groups[letter],
-              teams: calculateGroupStandings(groups[letter]),
-            };
-          }
+          // Save the current simulation before overwriting with official data
+          const savedSimulation = {
+            groups: current.groups,
+            knockoutResults: current.knockoutResults,
+            thirdPlaceOrder: current.thirdPlaceOrder,
+          };
+          // Restore official groups from seed data and recalculate standings
+          const officialGroups = createInitialGroups();
+          const officialKnockout = createInitialKnockoutResults();
+          set({
+            groups: officialGroups,
+            knockoutResults: officialKnockout,
+            isDragAndDropMode: false,
+            thirdPlaceOrder: null,
+            savedSimulation,
+            ...derive(officialGroups, current.matrix, false, officialKnockout, null),
+          });
+          return;
         }
-        const knockoutResults = createInitialKnockoutResults();
-        const thirdPlaceOrder = isDragAndDropMode
-          ? rankThirdPlaces(GROUP_LETTERS.map((l) => groups[l]), true).map(
-              (r) => r.team.code
-            )
-          : null;
+
+        // --- Switching TO Predict/Simulate (isDragAndDropMode = true) ---
+        // Restore the saved simulation if one exists, else keep current
+        const saved = current.savedSimulation;
+        const groups = saved ? saved.groups : current.groups;
+        const knockoutResults = saved ? saved.knockoutResults : createInitialKnockoutResults();
+        const thirdPlaceOrder = saved
+          ? saved.thirdPlaceOrder
+          : rankThirdPlaces(GROUP_LETTERS.map((l) => groups[l]), true).map((r) => r.team.code);
         set({
           groups,
-          isDragAndDropMode,
+          isDragAndDropMode: true,
           knockoutResults,
           thirdPlaceOrder,
-          ...derive(
-            groups,
-            current.matrix,
-            isDragAndDropMode,
-            knockoutResults,
-            thirdPlaceOrder
-          ),
+          savedSimulation: null,
+          ...derive(groups, current.matrix, true, knockoutResults, thirdPlaceOrder),
         });
       },
 
@@ -452,6 +469,7 @@ export const useAppStore = create<AppState>()(
         knockoutResults: state.knockoutResults,
         isDragAndDropMode: state.isDragAndDropMode,
         thirdPlaceOrder: state.thirdPlaceOrder,
+        savedSimulation: state.savedSimulation,
       }),
     }
   )

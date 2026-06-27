@@ -16,9 +16,9 @@ export function Layout() {
   const collapseAll = useAppStore((state) => state.collapseAllGroups);
   const isDnd = useAppStore((state) => state.isDragAndDropMode);
 
-  // When switching to Official Results, jump back to the group standings view.
+  // Sync the groups sub-view with the mode: Official → standings, Predict → remaining matches.
   useEffect(() => {
-    if (!isDnd) setGroupsView('groups');
+    setGroupsView(isDnd ? 'matches' : 'groups');
   }, [isDnd]);
 
   const anyExpanded = Object.values(collapsedGroups).some((collapsed) => !collapsed);

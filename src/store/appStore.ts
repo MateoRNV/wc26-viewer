@@ -160,6 +160,59 @@ function alignThirdPlaceOrder(
   return ordered;
 }
 
+/**
+ * Reconciles persisted predictions with the latest official seed: for every
+ * match marked `preseeded` in the fresh seed (= already played in real life),
+ * the official result wins and the user's previous prediction for it is
+ * dropped. Other matches keep the persisted prediction (score + conduct).
+ * Team order is preserved only when the persisted snapshot was in DnD mode;
+ * otherwise standings are recomputed from the merged matches.
+ */
+function mergeGroupsWithSeed(
+  persisted?: Record<GroupLetter, Group>
+): Record<GroupLetter, Group> {
+  const fresh = createInitialGroups();
+  if (!persisted) return fresh;
+  const merged = {} as Record<GroupLetter, Group>;
+  for (const letter of GROUP_LETTERS) {
+    const freshGroup = fresh[letter];
+    const stored = persisted[letter];
+    if (!stored || stored.matches?.length !== freshGroup.matches.length) {
+      merged[letter] = freshGroup;
+      continue;
+    }
+    const storedById = new Map(stored.matches.map((m) => [m.id, m]));
+    const matches = freshGroup.matches.map((freshMatch) => {
+      if (freshMatch.preseeded) return freshMatch;
+      const prev = storedById.get(freshMatch.id);
+      if (!prev) return freshMatch;
+      return {
+        ...freshMatch,
+        homeGoals: prev.homeGoals,
+        awayGoals: prev.awayGoals,
+        status: prev.status,
+        conduct: prev.conduct ?? freshMatch.conduct,
+      };
+    });
+    // Preserve team order from a stored DnD-mode snapshot; otherwise recompute.
+    let teams = freshGroup.teams;
+    if (stored.teams?.length === freshGroup.teams.length) {
+      const freshByCode = new Map(freshGroup.teams.map((t) => [t.code, t]));
+      const candidate = stored.teams
+        .map((t, i) => {
+          const ref = freshByCode.get(t.code);
+          return ref ? { ...ref, position: (i + 1) as Team['position'] } : null;
+        })
+        .filter((t): t is Team => Boolean(t));
+      if (candidate.length === freshGroup.teams.length) teams = candidate;
+    }
+    const next: Group = { letter, teams, matches };
+    next.teams = calculateGroupStandings(next);
+    merged[letter] = next;
+  }
+  return merged;
+}
+
 function validatePortableState(value: unknown): asserts value is PortableState {
   if (!value || typeof value !== 'object') throw new Error('Invalid JSON state');
   const candidate = value as Partial<PortableState>;
@@ -468,7 +521,7 @@ export const useAppStore = create<AppState>()(
     }),
     {
       name: 'wc2026-simulator-v2',
-      version: 1,
+      version: 3,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
         groups: state.groups,
@@ -477,6 +530,31 @@ export const useAppStore = create<AppState>()(
         thirdPlaceOrder: state.thirdPlaceOrder,
         savedSimulation: state.savedSimulation,
       }),
+      // On load, merge persisted predictions with the latest official seed so
+      // any match that has since been played in real life shows the official
+      // result and the user's prior prediction for it is dropped.
+      merge: (persistedUnknown, currentState) => {
+        const persisted = (persistedUnknown ?? {}) as Partial<AppState>;
+        const mergedGroups = mergeGroupsWithSeed(persisted.groups);
+        const mergedSaved = persisted.savedSimulation
+          ? {
+              ...persisted.savedSimulation,
+              groups: mergeGroupsWithSeed(persisted.savedSimulation.groups),
+            }
+          : null;
+        const isDnd = persisted.isDragAndDropMode ?? currentState.isDragAndDropMode;
+        const knockoutResults = persisted.knockoutResults ?? currentState.knockoutResults;
+        const thirdPlaceOrder = persisted.thirdPlaceOrder ?? null;
+        return {
+          ...currentState,
+          groups: mergedGroups,
+          isDragAndDropMode: isDnd,
+          knockoutResults,
+          thirdPlaceOrder,
+          savedSimulation: mergedSaved,
+          ...derive(mergedGroups, currentState.matrix, isDnd, knockoutResults, thirdPlaceOrder),
+        };
+      },
     }
   )
 );

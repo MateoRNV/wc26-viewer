@@ -118,10 +118,13 @@
     "dim": { "confederation": "Confederación", "group": "Grupo" },
     "metricsLabel": "Atributos",
     "chartsLabel": "Gráficos",
-    "percent": "Mostrar porcentajes",
+    "valueMode": "Valores",
+    "value": { "absolute": "Absoluto", "share": "% del total", "potential": "% del máx.", "potentialCount": "Logrado/máx." },
+    "potentialHint": "Logrado sobre el máximo posible de cada confederación · goles por equipo",
     "empty": "Selecciona al menos un atributo y un tipo de gráfico.",
     "noData": "Sin datos todavía.",
     "noNegative": "El gráfico circular no admite valores negativos.",
+    "noDonutPotential": "El circular no aplica en modo \"por potencial\".",
     "chart": { "bar": "Barras", "donut": "Circular" },
     "tabs": {
       "global": "Estadísticas globales",
@@ -134,7 +137,17 @@
       "share": "Cuota R32",
       "eliminated": "Eliminados",
       "avgPoints": "Pts/equipo",
-      "topTeam": "Mejor equipo"
+      "topTeam": "Mejor equipo",
+      "efficiencyLine": "Rendimiento: {{pct}}% de los puntos posibles ({{got}}/{{max}})",
+      "impactTitle": "Rendimiento según su tamaño",
+      "impactHint2": "La barra es la cuota real del total; la marca ▏ es lo que cabría esperar por su número de equipos. Pasar la marca = rinde por encima de su tamaño.",
+      "expectedTick": "Esperado por su tamaño",
+      "realVsExpected": "real {{real}}% · esperado {{expected}}%",
+      "expandTeams": "Mostrar selecciones",
+      "collapseTeams": "Ocultar selecciones",
+      "position": "Pos",
+      "gf": "GF",
+      "ga": "GC"
     },
     "metrics": {
       "qualified": "Clasificados",

@@ -119,10 +119,13 @@
     "dim": { "confederation": "Confederation", "group": "Group" },
     "metricsLabel": "Attributes",
     "chartsLabel": "Charts",
-    "percent": "Show percentages",
+    "valueMode": "Values",
+    "value": { "absolute": "Absolute", "share": "% of total", "potential": "% of max", "potentialCount": "Got/max" },
+    "potentialHint": "Achieved out of each confederation's maximum · goals per team",
     "empty": "Select at least one attribute and one chart type.",
     "noData": "No data yet.",
     "noNegative": "The donut chart does not support negative values.",
+    "noDonutPotential": "The donut chart doesn't apply in \"by potential\" mode.",
     "chart": { "bar": "Bars", "donut": "Donut" },
     "tabs": {
       "global": "Global statistics",
@@ -135,7 +138,17 @@
       "share": "R32 share",
       "eliminated": "Eliminated",
       "avgPoints": "Pts/team",
-      "topTeam": "Best team"
+      "topTeam": "Best team",
+      "efficiencyLine": "Efficiency: {{pct}}% of possible points ({{got}}/{{max}})",
+      "impactTitle": "Performance for its size",
+      "impactHint2": "The bar is the actual share of the total; the ▏ mark is what you'd expect from its number of teams. Past the mark = punching above its size.",
+      "expectedTick": "Expected for its size",
+      "realVsExpected": "actual {{real}}% · expected {{expected}}%",
+      "expandTeams": "Show teams",
+      "collapseTeams": "Hide teams",
+      "position": "Pos",
+      "gf": "GF",
+      "ga": "GA"
     },
     "metrics": {
       "qualified": "Qualified",

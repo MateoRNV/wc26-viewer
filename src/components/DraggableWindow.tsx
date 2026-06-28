@@ -16,6 +16,13 @@ interface Point {
   y: number;
 }
 
+let topWindowZIndex = 60;
+
+function nextWindowZIndex(): number {
+  topWindowZIndex += 2;
+  return topWindowZIndex;
+}
+
 /**
  * A floating, draggable window styled like the app's modals. Grab the title bar
  * to move it anywhere on the page, like a desktop window. A "focus" toggle in
@@ -27,6 +34,7 @@ export function DraggableWindow({ title, subtitle, onClose, children, width = 11
   const winRef = useRef<HTMLDivElement>(null);
   const dragOffset = useRef<Point | null>(null);
   const [focusMode, setFocusMode] = useState(false);
+  const [zIndex, setZIndex] = useState(nextWindowZIndex);
   const [pos, setPos] = useState<Point>(() => ({
     x: Math.max(8, (window.innerWidth - Math.min(width, window.innerWidth * 0.96)) / 2),
     y: Math.max(8, window.innerHeight * 0.05),
@@ -66,7 +74,6 @@ export function DraggableWindow({ title, subtitle, onClose, children, width = 11
   const stopDrag = useCallback(() => {
     dragOffset.current = null;
     window.removeEventListener('pointermove', onPointerMove);
-    window.removeEventListener('pointerup', stopDrag);
   }, [onPointerMove]);
 
   // Re-clamp if the viewport shrinks so a window parked near an edge stays reachable.
@@ -84,24 +91,34 @@ export function DraggableWindow({ title, subtitle, onClose, children, width = 11
     const rect = node.getBoundingClientRect();
     dragOffset.current = { x: e.clientX - rect.left, y: e.clientY - rect.top };
     window.addEventListener('pointermove', onPointerMove);
-    window.addEventListener('pointerup', stopDrag);
+    window.addEventListener('pointerup', stopDrag, { once: true });
     e.preventDefault();
   };
+
+  const bringToFront = useCallback(() => {
+    setZIndex(nextWindowZIndex());
+  }, []);
 
   useEffect(() => () => stopDrag(), [stopDrag]);
 
   return (
     <>
       {focusMode && (
-        <div className="fixed inset-0 z-[55] bg-black/40" role="presentation" />
+        <div
+          className="fixed inset-0 bg-black/40"
+          style={{ zIndex: zIndex - 1 }}
+          role="presentation"
+        />
       )}
       <div
         ref={winRef}
-        className="fixed z-[60] flex max-h-[92vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/10"
+        onPointerDownCapture={bringToFront}
+        className="fixed flex max-h-[92vh] flex-col overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black/10"
         style={{
           left: pos.x,
           top: pos.y,
           width: `min(${width}px, 96vw)`,
+          zIndex,
         }}
         role="dialog"
         aria-modal={focusMode}

@@ -107,6 +107,49 @@
     "current": "Actual",
     "noMatches": "Ninguna combinación coincide con la selección"
   },
+  "stats": {
+    "open": "Estadísticas y gráficos",
+    "button": "Estadísticas",
+    "title": "Estadísticas y gráficos",
+    "subtitle": "Análisis por confederación y por grupo",
+    "sourceOfficial": "Oficial",
+    "sourceSim": "Predicción",
+    "dimension": "Agrupar por",
+    "dim": { "confederation": "Confederación", "group": "Grupo" },
+    "metricsLabel": "Atributos",
+    "chartsLabel": "Gráficos",
+    "percent": "Mostrar porcentajes",
+    "empty": "Selecciona al menos un atributo y un tipo de gráfico.",
+    "noData": "Sin datos todavía.",
+    "noNegative": "El gráfico circular no admite valores negativos.",
+    "chart": { "bar": "Barras", "donut": "Circular" },
+    "tabs": {
+      "global": "Estadísticas globales",
+      "confed": "Confederaciones"
+    },
+    "confed": {
+      "intro": "Rendimiento de cada confederación en relación a cuántos equipos aportó al torneo.",
+      "rateTitle": "Tasa de clasificación",
+      "qualifiedOf": "{{qualified}} de {{teams}} equipos clasificados",
+      "share": "Cuota R32",
+      "eliminated": "Eliminados",
+      "avgPoints": "Pts/equipo",
+      "topTeam": "Mejor equipo"
+    },
+    "metrics": {
+      "qualified": "Clasificados",
+      "eliminated": "Eliminados",
+      "points": "Puntos",
+      "gf": "Goles a favor",
+      "ga": "Goles en contra",
+      "gd": "Diferencia de goles"
+    }
+  },
+  "window": {
+    "focus": "Enfocar",
+    "focusHint": "Atenúa y bloquea la página detrás"
+  },
+  "common": { "close": "Cerrar" },
   "match": {
     "goalsAria": "Goles de {{team}}",
     "conduct": "Tarjetas y conducta",

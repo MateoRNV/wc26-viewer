@@ -108,6 +108,49 @@
     "current": "Current",
     "noMatches": "No combination matches the selection"
   },
+  "stats": {
+    "open": "Statistics and charts",
+    "button": "Statistics",
+    "title": "Statistics and charts",
+    "subtitle": "Breakdown by confederation and group",
+    "sourceOfficial": "Official",
+    "sourceSim": "Prediction",
+    "dimension": "Group by",
+    "dim": { "confederation": "Confederation", "group": "Group" },
+    "metricsLabel": "Attributes",
+    "chartsLabel": "Charts",
+    "percent": "Show percentages",
+    "empty": "Select at least one attribute and one chart type.",
+    "noData": "No data yet.",
+    "noNegative": "The donut chart does not support negative values.",
+    "chart": { "bar": "Bars", "donut": "Donut" },
+    "tabs": {
+      "global": "Global statistics",
+      "confed": "Confederations"
+    },
+    "confed": {
+      "intro": "How each confederation performed relative to how many teams it sent to the tournament.",
+      "rateTitle": "Qualification rate",
+      "qualifiedOf": "{{qualified}} of {{teams}} teams qualified",
+      "share": "R32 share",
+      "eliminated": "Eliminated",
+      "avgPoints": "Pts/team",
+      "topTeam": "Best team"
+    },
+    "metrics": {
+      "qualified": "Qualified",
+      "eliminated": "Eliminated",
+      "points": "Points",
+      "gf": "Goals for",
+      "ga": "Goals against",
+      "gd": "Goal difference"
+    }
+  },
+  "window": {
+    "focus": "Focus",
+    "focusHint": "Dim and block the page behind"
+  },
+  "common": { "close": "Close" },
   "match": {
     "goalsAria": "{{team}} goals",
     "conduct": "Cards and conduct",

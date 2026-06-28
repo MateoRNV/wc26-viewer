@@ -213,6 +213,38 @@ function mergeGroupsWithSeed(
   return merged;
 }
 
+/**
+ * Detects whether the fresh seed introduced (or corrected) an official result
+ * relative to the persisted snapshot — i.e. a match that is now `preseeded`
+ * but in the saved state was still a prediction, was missing, or carried a
+ * different score. When this happens the user's derived predictions (bracket
+ * picks, manual third-place order) were computed against stale standings.
+ */
+function seedAdvanced(
+  persisted: Record<GroupLetter, Group> | undefined,
+  merged: Record<GroupLetter, Group>
+): boolean {
+  if (!persisted) return false;
+  for (const letter of GROUP_LETTERS) {
+    const prevById = new Map(
+      (persisted[letter]?.matches ?? []).map((m) => [m.id, m])
+    );
+    for (const match of merged[letter].matches) {
+      if (!match.preseeded) continue;
+      const prev = prevById.get(match.id);
+      if (
+        !prev ||
+        !prev.preseeded ||
+        prev.homeGoals !== match.homeGoals ||
+        prev.awayGoals !== match.awayGoals
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
 function validatePortableState(value: unknown): asserts value is PortableState {
   if (!value || typeof value !== 'object') throw new Error('Invalid JSON state');
   const candidate = value as Partial<PortableState>;
@@ -532,19 +564,55 @@ export const useAppStore = create<AppState>()(
       }),
       // On load, merge persisted predictions with the latest official seed so
       // any match that has since been played in real life shows the official
-      // result and the user's prior prediction for it is dropped.
+      // result and the user's prior prediction for it is dropped. When a new
+      // official result actually arrived, the derived predictions (bracket
+      // picks, manual third-place order) were built on now-stale standings, so
+      // they are rebuilt from the merged groups — mirroring what editing a
+      // group result does live, so the bracket stays consistent without the
+      // user having to clear the cache or re-edit groups by hand.
       merge: (persistedUnknown, currentState) => {
         const persisted = (persistedUnknown ?? {}) as Partial<AppState>;
         const mergedGroups = mergeGroupsWithSeed(persisted.groups);
-        const mergedSaved = persisted.savedSimulation
-          ? {
-              ...persisted.savedSimulation,
-              groups: mergeGroupsWithSeed(persisted.savedSimulation.groups),
-            }
-          : null;
+        const advanced = seedAdvanced(persisted.groups, mergedGroups);
+
         const isDnd = persisted.isDragAndDropMode ?? currentState.isDragAndDropMode;
-        const knockoutResults = persisted.knockoutResults ?? currentState.knockoutResults;
-        const thirdPlaceOrder = persisted.thirdPlaceOrder ?? null;
+
+        // A fresh official result invalidates saved knockout picks (the bracket
+        // teams may have changed); otherwise keep them as predicted.
+        const knockoutResults = advanced
+          ? createInitialKnockoutResults()
+          : persisted.knockoutResults ?? currentState.knockoutResults;
+
+        // Realign the manual third-place order to the current thirds, dropping
+        // teams that are no longer third and appending any new ones. After a
+        // result lands we recompute it from scratch so the ordering is sound.
+        const thirdPlaceOrder = isDnd
+          ? advanced
+            ? rankThirdPlaces(GROUP_LETTERS.map((l) => mergedGroups[l]), true).map(
+                (r) => r.team.code
+              )
+            : alignThirdPlaceOrder(mergedGroups, persisted.thirdPlaceOrder ?? null)
+          : null;
+
+        // Apply the same reconciliation to a saved simulation snapshot so it is
+        // already consistent when the user toggles back into Predict mode.
+        let mergedSaved = persisted.savedSimulation ?? null;
+        if (mergedSaved) {
+          const savedGroups = mergeGroupsWithSeed(mergedSaved.groups);
+          const savedAdvanced = seedAdvanced(mergedSaved.groups, savedGroups);
+          mergedSaved = {
+            groups: savedGroups,
+            knockoutResults: savedAdvanced
+              ? createInitialKnockoutResults()
+              : mergedSaved.knockoutResults,
+            thirdPlaceOrder: savedAdvanced
+              ? rankThirdPlaces(GROUP_LETTERS.map((l) => savedGroups[l]), true).map(
+                  (r) => r.team.code
+                )
+              : alignThirdPlaceOrder(savedGroups, mergedSaved.thirdPlaceOrder),
+          };
+        }
+
         return {
           ...currentState,
           groups: mergedGroups,
